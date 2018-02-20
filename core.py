@@ -21,10 +21,10 @@ def singleinfectedpop(size, fs):
     a = np.random.rand(size,size)
     set_boundary(a)
     for i,j,aij in traverse(a):
-        if aij < fs: a[i,j] = 0 # suseptible
-        elif fs <= aij: a[i,j] = Ti+1 # refractory
+        if aij<fs: a[i,j] = 0 # suseptible
+        else: a[i,j] = Ti+1 # refractory
     x,y = np.random.randint(1,size-1,2)
-    a[x,y] = 1
+    a[x,y] = 1  #infected
     return a
 
 def fracinfectedpop(size, fi):

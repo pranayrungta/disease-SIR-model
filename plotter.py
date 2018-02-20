@@ -40,7 +40,7 @@ def plottimeseries(ti,tf):
 
         perCom = (popRange.time-ti)/(tf-ti)*100
         print(f'\r {perCom:.0f}% Done  ', end='')
-    print(f'\r {100:.0f}% Done  ', end='')
+    print(f'\r {100:.0f}% Done  \r', end='')
     data=np.reshape(data, newshape=(len(data),4))
     
     fig = plt.figure(); fig.clear()
@@ -85,7 +85,7 @@ class Population_visual:
         ax2.set_ylim(-3, 3)
         ax2.set_title(r'Order Parameter |$\frac{1}{N}\Sigma e^{i\phi}|$')
         
-    def update_lines(self,i):
+    def update_lines(self):
         popRange.updatepop()
         sus, inf, ref = core.sus_inf_ref(popRange.currentpop)
         self.data = np.vstack( (self.data, [popRange.time,
@@ -101,13 +101,16 @@ class Population_visual:
         self.axes[0].set_title( sir_title(popRange.time, *popRange.initfrac) )
         self.axes[1].set_xlim(self.data[0,0], self.data[-1,0]+1)
         self.axes[2].set_xlim(self.data[0,0], self.data[-1,0]+1)
-        return tuple(self.p)
+
+    def update(self,i):
+        if not popRange.infdead:
+            self.update_lines()
 
     def animate(self, ti, tf, delay):
         popRange.jumptostep(ti)
         self.fig.tight_layout()
-        line_ani=animation.FuncAnimation( self.fig, self.update_lines,(tf-ti),
-                                interval=delay*1000,repeat=False, blit=False)
+        line_ani = animation.FuncAnimation(self.fig, self.update, (tf-ti-1),
+                                           interval=delay*1000, repeat=False)
         self.canvas.draw()
         self.canvas.show()
 
