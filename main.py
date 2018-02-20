@@ -133,4 +133,3 @@ if __name__ == '__main__':
     form = Application()
     form.show()
     sys.exit(app.exec_())
-

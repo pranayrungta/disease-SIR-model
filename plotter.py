@@ -88,9 +88,9 @@ class Population_visual:
     def update_lines(self):
         popRange.updatepop()
         sus, inf, ref = core.sus_inf_ref(popRange.currentpop)
-        self.data = np.vstack( (self.data, [popRange.time,
-                                            *core.census(popRange.currentpop),
-                                            *popRange.hamming_dist()] ) )
+        current_census = core.census(popRange.currentpop)
+        self.data = np.vstack((self.data, [popRange.time, *current_census,
+                                           *popRange.hamming_dist()]))
         self.p[0].set_data(sus[:,0], sus[:,1])
         self.p[1].set_data(inf[:,0], inf[:,1])
         self.p[2].set_data(ref[:,0], ref[:,1])
@@ -98,7 +98,7 @@ class Population_visual:
         self.p[4].set_data(self.data[:,0], self.data[:,2])
         self.p[5].set_data(self.data[:,0], self.data[:,3])
         self.p[6].set_data(self.data[:,0], self.data[:,5])
-        self.axes[0].set_title( sir_title(popRange.time, *popRange.initfrac) )
+        self.axes[0].set_title( sir_title(popRange.time, *current_census) )
         self.axes[1].set_xlim(self.data[0,0], self.data[-1,0]+1)
         self.axes[2].set_xlim(self.data[0,0], self.data[-1,0]+1)
 
