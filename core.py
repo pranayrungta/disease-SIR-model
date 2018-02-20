@@ -60,12 +60,12 @@ def census(population):
 
 class Population(object):
     def __init__(self, initpop, is_nbrs_4):
-        rows,cols = initpop.shape
         self.initpop = initpop
+        self.currentpop = np.copy(initpop)
+        self.tpop = np.copy(initpop)
         self.initfrac = census(initpop)
         self.nbrs = self.get_nbr_list(is_nbrs_4)
-        self.currentpop = np.copy(initpop)
-        self.tpop = self.currentpop.copy()
+        rows,cols = initpop.shape
         self.total = (rows-2)*(cols-2)
         self.time = 0
         self.infdead = False
@@ -114,8 +114,9 @@ class Population(object):
                 suscount += 1
                 self.tpop[i,j] = a_ij
                 self.susUpdate(i,j)
-            elif self.infCond(a_ij): self.tpop[i,j] = a_ij+1
-            else: self.tpop[i,j] = 0 
+            elif self.infCond(a_ij):
+                self.tpop[i,j] = a_ij+1
+            else: self.tpop[i,j] = 0
         self.lastsuscount = suscount
         self.currentpop,self.tpop = self.tpop,self.currentpop
         self.time += 1
