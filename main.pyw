@@ -1,3 +1,4 @@
+#!/usr/bin/python3.6
 import plotter as pltr
 import sys
 from PyQt5 import QtWidgets
