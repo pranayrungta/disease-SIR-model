@@ -48,7 +48,7 @@ def plottimeseries(ti,tf):
     plt.plot(data[:,0],data[:,1],'g-',lw=2,label='Susceptible')
     plt.plot(data[:,0],data[:,2],'r-',lw=2,label='Infected')
     plt.plot(data[:,0],data[:,3],'k-',lw=2,label='Refractory')
-    plt.title( sir_title(popRange.time, *popRange.initfrac) )
+    plt.title( sir_title(*data[-1,:]) )
     plt.legend()
     canvas.show()
 

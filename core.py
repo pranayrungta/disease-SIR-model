@@ -63,13 +63,12 @@ class Population(object):
         self.initpop = initpop
         self.currentpop = np.copy(initpop)
         self.tpop = np.copy(initpop)
-        self.initfrac = census(initpop)
         self.nbrs = self.get_nbr_list(is_nbrs_4)
         rows,cols = initpop.shape
         self.total = (rows-2)*(cols-2)
         self.time = 0
         self.infdead = False
-        self.lastsuscount = self.initfrac[0]
+        self.lastsuscount = 0
 
     def get_nbr_list(self,is_nbrs_4):
         if is_nbrs_4: return [[1,0], [-1,0], [0,1], [0,-1]]
