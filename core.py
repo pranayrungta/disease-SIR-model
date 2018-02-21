@@ -53,10 +53,7 @@ def census(population):
         if a_ij == 0: sus += 1
         elif a_ij <= Ti: inf += 1
         else: ref += 1
-    rows,cols = population.shape
-    total = (rows-2)*(cols-2) 
-    ref/=total; inf/=total; sus/=total
-    return sus, inf, ref
+    return np.array([sus, inf, ref])
 
 class Population(object):
     def __init__(self, initpop, is_nbrs_4):
@@ -67,8 +64,6 @@ class Population(object):
         rows,cols = initpop.shape
         self.total = (rows-2)*(cols-2)
         self.time = 0
-        self.infdead = False
-        self.lastsuscount = 0
 
     def get_nbr_list(self,is_nbrs_4):
         if is_nbrs_4: return [[1,0], [-1,0], [0,1], [0,-1]]
@@ -103,21 +98,14 @@ class Population(object):
         return np.mean(sus)/len(self.nbrs),np.mean(ref)/len(self.nbrs)
 
     def updatepop(self):
-        if self.lastsuscount == self.total:
-            self.time += 1
-            self.infdead = True
-            return
-        suscount = 0
         for i,j, a_ij in traverse(self.currentpop):
             if a_ij==0:
-                suscount += 1
                 self.tpop[i,j] = a_ij
                 self.susUpdate(i,j)
             elif self.infCond(a_ij):
                 self.tpop[i,j] = a_ij+1
             else: self.tpop[i,j] = 0
-        self.lastsuscount = suscount
-        self.currentpop,self.tpop = self.tpop,self.currentpop
+        self.currentpop, self.tpop = self.tpop, self.currentpop
         self.time += 1
 
 class ShortRangePop(Population):

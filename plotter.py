@@ -19,8 +19,9 @@ def set_range(longrange, is_nbrs_4, p, f):
 
 def plotinitialpop():
     sus,inf,ref = core.sus_inf_ref(population)
-    title = sir_title(0,*core.census(population))
     rows,cols = population.shape
+    total = (rows-2)*(cols-2) 
+    title = sir_title(0,*(core.census(population)/total))
     
     fig = plt.figure(figsize=[6, 6])
     canvas = FigureCanvasQTAgg(fig)
@@ -34,10 +35,11 @@ def plotinitialpop():
 def plottimeseries(ti,tf):
     data = []
     popRange.jumptostep(ti)
-    while popRange.time<tf and not popRange.infdead:
+    current_census = [None, None, None]
+    while popRange.time<tf and current_census[0]!=popRange.total:
         popRange.updatepop()
-        data.append([popRange.time,*core.census(popRange.currentpop)])
-
+        current_census = core.census(popRange.currentpop)
+        data.append([popRange.time,*(current_census/popRange.total)])
         perCom = (popRange.time-ti)/(tf-ti)*100
         print(f'\r {perCom:.0f}% Done  ', end='')
     print(f'\r {100:.0f}% Done  \r', end='')
@@ -55,8 +57,9 @@ def plottimeseries(ti,tf):
 class Population_visual:
     def __init__(self):
         global popRange
-        rows,cols = popRange.currentpop.shape
         self.data = np.zeros(shape=(0,6))
+        rows,cols = popRange.currentpop.shape
+        self.current_census = core.census(popRange.currentpop)
 
         self.fig = plt.figure(figsize=[12, 6])
         self.canvas = FigureCanvasQTAgg(self.fig)
@@ -88,8 +91,9 @@ class Population_visual:
     def update_lines(self):
         popRange.updatepop()
         sus, inf, ref = core.sus_inf_ref(popRange.currentpop)
-        current_census = core.census(popRange.currentpop)
-        self.data = np.vstack((self.data, [popRange.time, *current_census,
+        self.current_census = core.census(popRange.currentpop)
+        census_frac = self.current_census/popRange.total
+        self.data = np.vstack((self.data, [popRange.time,*census_frac,
                                            *popRange.hamming_dist()]))
         self.p[0].set_data(sus[:,0], sus[:,1])
         self.p[1].set_data(inf[:,0], inf[:,1])
@@ -98,12 +102,12 @@ class Population_visual:
         self.p[4].set_data(self.data[:,0], self.data[:,2])
         self.p[5].set_data(self.data[:,0], self.data[:,3])
         self.p[6].set_data(self.data[:,0], self.data[:,5])
-        self.axes[0].set_title( sir_title(popRange.time, *current_census) )
+        self.axes[0].set_title( sir_title(popRange.time, *census_frac) )
         self.axes[1].set_xlim(self.data[0,0], self.data[-1,0]+1)
         self.axes[2].set_xlim(self.data[0,0], self.data[-1,0]+1)
 
     def update(self,i):
-        if not popRange.infdead:
+        if self.current_census[0]!=popRange.total:
             self.update_lines()
 
     def animate(self, ti, tf, delay):
