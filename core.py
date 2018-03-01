@@ -37,16 +37,6 @@ def fracinfectedpop(size, fi):
         else: a[i,j] = Ti+1  #refractory
     return a
 
-def sus_inf_ref(mat):
-    sus, inf, ref = [], [], []
-    for (i,j),mat_ij in np.ndenumerate(mat):
-        if mat_ij==0: sus.append([i,j])
-        elif mat_ij<=Ti: inf.append([i,j])
-        else: ref.append([i, j])
-    return (np.reshape(sus,newshape=(len(sus),2)),
-            np.reshape(inf,newshape=(len(inf),2)),
-            np.reshape(ref,newshape=(len(ref),2)))
-
 def census(population):
     sus, inf, ref = 0, 0, 0
     for i,j,a_ij in traverse(population):

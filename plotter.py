@@ -18,19 +18,22 @@ def set_range(longrange, is_nbrs_4, p, f):
     else: popRange = core.ShortRangePop(population,is_nbrs_4)
 
 def plotinitialpop():
-    sus,inf,ref = core.sus_inf_ref(population)
+    from matplotlib.colors import ListedColormap, BoundaryNorm
+    from core import Ti,Tr
     rows,cols = population.shape
     total = (rows-2)*(cols-2) 
-    title = sir_title(0,*(core.census(population)/total))
-    
+    title = sir_title(0,*(core.census(population)/total))    
     fig = plt.figure(figsize=[6, 6])
     canvas = FigureCanvasQTAgg(fig)
     plt.xlim(0,cols-1); plt.ylim(0,rows-1)
-    plt.title( title ); ms = ( 100/(rows-2) )*3
-    plt.plot(sus[:, 0], sus[:, 1], 'gs', markersize=ms)
-    plt.plot(inf[:, 0], inf[:, 1], 'rs', markersize=ms)
-    plt.plot(ref[:, 0], ref[:, 1], 'ks', markersize=ms)
+    plt.title( title )
+    cmap = ListedColormap(['g','r','k'])
+    norm = BoundaryNorm(  [ 0,  1,  Ti+1,  Ti+Tr+1], cmap.N)
+    plt.imshow(population, interpolation='none', cmap=cmap, norm=norm)
+    plt.vlines(np.arange(0.5,cols-1),ymin=0,ymax=cols-1,color='w',lw=0.5)
+    plt.hlines(np.arange(0.5,rows-1),xmin=0,xmax=rows-1,color='w',lw=0.5)
     canvas.show()
+    
 
 def plottimeseries(ti,tf):
     data = []
@@ -68,40 +71,42 @@ class Population_visual:
         self.axes.append( self.fig.add_subplot(121) )
         self.axes.append( self.fig.add_subplot(222) )
         self.axes.append( self.fig.add_subplot(224) )
-        self.p = list()
         
-        ax0 = self.axes[0]; ms=3.1*100/(rows-2)
-        self.p.append(ax0.plot([],[],'gs',markersize=ms,label='Susceptible')[0])
-        self.p.append(ax0.plot([],[],'rs',markersize=ms,label='Infected')[0])
-        self.p.append(ax0.plot([],[],'ks',markersize=ms,label='Refractory')[0])
+        ax0 = self.axes[0]
+        from matplotlib.colors import ListedColormap, BoundaryNorm
+        from core import Ti,Tr
+        cmap = ListedColormap(['g','r','k'])
+        norm = BoundaryNorm(  [ 0,  1,  Ti+1,  Ti+Tr+1], cmap.N)
+        self.im = ax0.imshow(popRange.currentpop, interpolation='none',
+                             cmap=cmap, norm=norm)
+        ax0.vlines(np.arange(0.5,cols-1),ymin=0,ymax=cols-1,color='w',lw=0.5)
+        ax0.hlines(np.arange(0.5,rows-1),xmin=0,xmax=rows-1,color='w',lw=0.5)
         ax0.set_xlim(0, rows-1); ax0.set_ylim(0, cols-1)
 
         ax1 = self.axes[1]
-        self.p.append(ax1.plot([], [], 'g', lw=2, label='Susceptible')[0])
-        self.p.append(ax1.plot([], [], 'r', lw=2, label='Infected')[0])
-        self.p.append(ax1.plot([], [], 'k', lw=2, label='Refractory')[0])
+        self.ln = list()
+        self.ln.append(ax1.plot([], [], 'g', lw=2, label='Susceptible')[0])
+        self.ln.append(ax1.plot([], [], 'r', lw=2, label='Infected')[0])
+        self.ln.append(ax1.plot([], [], 'k', lw=2, label='Refractory')[0])
         ax1.set_ylim(0.0, 1.0)
         ax1.set_title('Time Series\t' + r'$\tau_{i}$=%i    '%core.Ti +
                        r'$\tau_{r}$=%i     nbrs=%i'%(core.Tr,len(popRange.nbrs) ) )
         ax2 = self.axes[2]
-        self.p.append(ax2.plot([], [], lw=2)[0])
+        self.ln.append(ax2.plot([], [], lw=2)[0])
         ax2.set_ylim(-3, 3)
         ax2.set_title(r'Order Parameter |$\frac{1}{N}\Sigma e^{i\phi}|$')
         
     def update_lines(self):
         popRange.updatepop()
-        sus, inf, ref = core.sus_inf_ref(popRange.currentpop)
         self.current_census = core.census(popRange.currentpop)
         census_frac = self.current_census/popRange.total
         self.data = np.vstack((self.data, [popRange.time,*census_frac,
                                            *popRange.hamming_dist()]))
-        self.p[0].set_data(sus[:,0], sus[:,1])
-        self.p[1].set_data(inf[:,0], inf[:,1])
-        self.p[2].set_data(ref[:,0], ref[:,1])
-        self.p[3].set_data(self.data[:,0], self.data[:,1])
-        self.p[4].set_data(self.data[:,0], self.data[:,2])
-        self.p[5].set_data(self.data[:,0], self.data[:,3])
-        self.p[6].set_data(self.data[:,0], self.data[:,5])
+        self.im.set_data(popRange.currentpop)
+        self.ln[0].set_data(self.data[:,0], self.data[:,1])
+        self.ln[1].set_data(self.data[:,0], self.data[:,2])
+        self.ln[2].set_data(self.data[:,0], self.data[:,3])
+        self.ln[3].set_data(self.data[:,0], self.data[:,5])
         self.axes[0].set_title( sir_title(popRange.time, *census_frac) )
         self.axes[1].set_xlim(self.data[0,0], self.data[-1,0]+1)
         self.axes[2].set_xlim(self.data[0,0], self.data[-1,0]+1)
