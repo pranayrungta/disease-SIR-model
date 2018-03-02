@@ -1,6 +1,5 @@
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import numpy as np
 import core
 
@@ -17,23 +16,26 @@ def set_range(longrange, is_nbrs_4, p, f):
     if longrange: popRange = core.LongRangePop(population,is_nbrs_4,p,f)
     else: popRange = core.ShortRangePop(population,is_nbrs_4)
 
-def plotinitialpop():
+def pop_image(ax, pop):
     from matplotlib.colors import ListedColormap, BoundaryNorm
     from core import Ti,Tr
-    rows,cols = population.shape
-    total = (rows-2)*(cols-2) 
-    title = sir_title(0,*(core.census(population)/total))    
-    fig = plt.figure(figsize=[6, 6])
-    canvas = FigureCanvasQTAgg(fig)
-    plt.xlim(0,cols-1); plt.ylim(0,rows-1)
-    plt.title( title )
     cmap = ListedColormap(['g','r','k'])
     norm = BoundaryNorm(  [ 0,  1,  Ti+1,  Ti+Tr+1], cmap.N)
-    plt.imshow(population, interpolation='none', cmap=cmap, norm=norm)
-    plt.vlines(np.arange(0.5,cols-1),ymin=0,ymax=cols-1,color='w',lw=0.5)
-    plt.hlines(np.arange(0.5,rows-1),xmin=0,xmax=rows-1,color='w',lw=0.5)
-    canvas.show()
-    
+    im = ax.imshow(pop, interpolation='none', cmap=cmap, norm=norm)
+    rows,cols = pop.shape
+    ax.vlines(np.arange(0.5,cols-1),ymin=0,ymax=rows-1,color='w',lw=0.5)
+    ax.hlines(np.arange(0.5,rows-1),xmin=0,xmax=cols-1,color='w',lw=0.5)
+    ax.set_xlim(0,cols-1); ax.set_ylim(0,rows-1)
+    return im
+
+def plotinitialpop():
+    rows,cols = population.shape
+    total = (rows-2)*(cols-2) 
+    fig = plt.figure(figsize=[6, 6])
+    canvas = FigureCanvasQTAgg(fig)
+    plt.title( sir_title(0,*(core.census(population)/total)) )
+    pop_image(plt.gca(), population)
+    canvas.show()    
 
 def plottimeseries(ti,tf):
     data = []
@@ -61,7 +63,6 @@ class Population_visual:
     def __init__(self):
         global popRange
         self.data = np.zeros(shape=(0,6))
-        rows,cols = popRange.currentpop.shape
         self.current_census = core.census(popRange.currentpop)
 
         self.fig = plt.figure(figsize=[12, 6])
@@ -72,17 +73,7 @@ class Population_visual:
         self.axes.append( self.fig.add_subplot(222) )
         self.axes.append( self.fig.add_subplot(224) )
         
-        ax0 = self.axes[0]
-        from matplotlib.colors import ListedColormap, BoundaryNorm
-        from core import Ti,Tr
-        cmap = ListedColormap(['g','r','k'])
-        norm = BoundaryNorm(  [ 0,  1,  Ti+1,  Ti+Tr+1], cmap.N)
-        self.im = ax0.imshow(popRange.currentpop, interpolation='none',
-                             cmap=cmap, norm=norm)
-        ax0.vlines(np.arange(0.5,cols-1),ymin=0,ymax=cols-1,color='w',lw=0.5)
-        ax0.hlines(np.arange(0.5,rows-1),xmin=0,xmax=rows-1,color='w',lw=0.5)
-        ax0.set_xlim(0, rows-1); ax0.set_ylim(0, cols-1)
-
+        self.im = pop_image(self.axes[0], popRange.currentpop)
         ax1 = self.axes[1]
         self.ln = list()
         self.ln.append(ax1.plot([], [], 'g', lw=2, label='Susceptible')[0])
@@ -116,6 +107,7 @@ class Population_visual:
             self.update_lines()
 
     def animate(self, ti, tf, delay):
+        import matplotlib.animation as animation
         popRange.jumptostep(ti)
         self.fig.tight_layout()
         line_ani = animation.FuncAnimation(self.fig, self.update, (tf-ti-1),
