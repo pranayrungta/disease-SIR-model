@@ -37,6 +37,12 @@ def plotinitialpop():
     pop_image(plt.gca(), population)
     canvas.show()    
 
+def timeSeriesLines(ax, data):
+    l = ax.plot(data[:,0],data[:,1],'g-',lw=2,label='Susceptible')
+    m = ax.plot(data[:,0],data[:,2],'r-',lw=2,label='Infected')
+    n = ax.plot(data[:,0],data[:,3],'k-',lw=2,label='Refractory')
+    return [ l[0], m[0], n[0] ]
+
 def plottimeseries(ti,tf):
     data = []
     popRange.jumptostep(ti)
@@ -52,9 +58,7 @@ def plottimeseries(ti,tf):
     
     fig = plt.figure(); fig.clear()
     canvas = FigureCanvasQTAgg(fig)
-    plt.plot(data[:,0],data[:,1],'g-',lw=2,label='Susceptible')
-    plt.plot(data[:,0],data[:,2],'r-',lw=2,label='Infected')
-    plt.plot(data[:,0],data[:,3],'k-',lw=2,label='Refractory')
+    timeSeriesLines(plt.gca(), data)
     plt.title( sir_title(*data[-1,:]) )
     plt.legend()
     canvas.show()
@@ -74,18 +78,13 @@ class Population_visual:
         self.axes.append( self.fig.add_subplot(224) )
         
         self.im = pop_image(self.axes[0], popRange.currentpop)
-        ax1 = self.axes[1]
-        self.ln = list()
-        self.ln.append(ax1.plot([], [], 'g', lw=2, label='Susceptible')[0])
-        self.ln.append(ax1.plot([], [], 'r', lw=2, label='Infected')[0])
-        self.ln.append(ax1.plot([], [], 'k', lw=2, label='Refractory')[0])
-        ax1.set_ylim(0.0, 1.0)
-        ax1.set_title('Time Series\t' + r'$\tau_{i}$=%i    '%core.Ti +
+        self.ln = timeSeriesLines(self.axes[1], self.data)
+        self.ln.append(self.axes[2].plot([], [], lw=2)[0])
+        self.axes[1].set_ylim(0.0, 1.0)
+        self.axes[1].set_title('Time Series\t' + r'$\tau_{i}$=%i    '%core.Ti +
                        r'$\tau_{r}$=%i     nbrs=%i'%(core.Tr,len(popRange.nbrs) ) )
-        ax2 = self.axes[2]
-        self.ln.append(ax2.plot([], [], lw=2)[0])
-        ax2.set_ylim(-3, 3)
-        ax2.set_title(r'Order Parameter |$\frac{1}{N}\Sigma e^{i\phi}|$')
+        self.axes[2].set_ylim(-3, 3)
+        self.axes[2].set_title(r'Order Parameter |$\frac{1}{N}\Sigma e^{i\phi}|$')
         
     def update_lines(self):
         popRange.updatepop()
