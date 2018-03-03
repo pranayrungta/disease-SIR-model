@@ -20,7 +20,7 @@ def pop_image(ax, pop):
     from matplotlib.colors import ListedColormap, BoundaryNorm
     from core import Ti,Tr
     cmap = ListedColormap(['g','r','k'])
-    norm = BoundaryNorm(  [ 0,  1,  Ti+1,  Ti+Tr+1], cmap.N)
+    norm = BoundaryNorm(  [ 0,  1,  Ti+1,  Ti+Tr+1], cmap.N, clip=True)
     im = ax.imshow(pop, interpolation='none', cmap=cmap, norm=norm)
     rows,cols = pop.shape
     ax.vlines(np.arange(0.5,cols-1),ymin=0,ymax=rows-1,color='w',lw=0.5)
@@ -31,6 +31,7 @@ def pop_image(ax, pop):
 def plotinitialpop():
     rows,cols = population.shape
     total = (rows-2)*(cols-2) 
+    plt.close('all')
     fig = plt.figure(figsize=[6, 6])
     canvas = FigureCanvasQTAgg(fig)
     plt.title( sir_title(0,*(core.census(population)/total)) )
@@ -38,9 +39,9 @@ def plotinitialpop():
     canvas.show()    
 
 def timeSeriesLines(ax, data):
-    l = ax.plot(data[:,0],data[:,1],'g-',lw=2,label='Susceptible')
-    m = ax.plot(data[:,0],data[:,2],'r-',lw=2,label='Infected')
-    n = ax.plot(data[:,0],data[:,3],'k-',lw=2,label='Refractory')
+    l = ax.plot(data[:,0], data[:,1], 'g-', lw=2, label='Susceptible')
+    m = ax.plot(data[:,0], data[:,2], 'r-', lw=2, label='Infected'   )
+    n = ax.plot(data[:,0], data[:,3], 'k-', lw=2, label='Refractory' )
     return [ l[0], m[0], n[0] ]
 
 def plottimeseries(ti,tf):
@@ -56,6 +57,7 @@ def plottimeseries(ti,tf):
     print(f'\r {100:.0f}% Done  \r', end='')
     data=np.reshape(data, newshape=(len(data),4))
     
+    plt.close('all')
     fig = plt.figure(); fig.clear()
     canvas = FigureCanvasQTAgg(fig)
     timeSeriesLines(plt.gca(), data)
@@ -68,8 +70,8 @@ class Population_visual:
         global popRange
         self.data = np.zeros(shape=(0,6))
         self.current_census = core.census(popRange.currentpop)
-
-        self.fig = plt.figure(figsize=[12, 6])
+        plt.close('all')
+        self.fig = plt.figure(figsize=[12, 6]); self.fig.clear()
         self.canvas = FigureCanvasQTAgg(self.fig)
 
         self.axes = list()
@@ -79,10 +81,11 @@ class Population_visual:
         
         self.im = pop_image(self.axes[0], popRange.currentpop)
         self.ln = timeSeriesLines(self.axes[1], self.data)
-        self.ln.append(self.axes[2].plot([], [], lw=2)[0])
+        self.ln.append( self.axes[2].plot([],[],lw=2)[0] )
         self.axes[1].set_ylim(0.0, 1.0)
         self.axes[1].set_title('Time Series\t' + r'$\tau_{i}$=%i    '%core.Ti +
                        r'$\tau_{r}$=%i     nbrs=%i'%(core.Tr,len(popRange.nbrs) ) )
+        self.axes[1].legend()
         self.axes[2].set_ylim(-3, 3)
         self.axes[2].set_title(r'Order Parameter |$\frac{1}{N}\Sigma e^{i\phi}|$')
         
