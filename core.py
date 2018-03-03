@@ -127,7 +127,7 @@ class LongRangePop(Population):
             for m,n in shuffled_nbrs:
                 if 0 < self.currentpop[i+m,j+n] <= Ti:
                     nbrs=True; break
-                x,y = np.random.randint(1,rows,2)
+                x,y = np.random.randint(1,rows-1,2)
                 if 0 < self.currentpop[x,y] <= Ti:
                     nbrs=True; break
             if nbrs:self.tpop[i,j] += 1
