@@ -1,5 +1,5 @@
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import numpy as np
 import core
 
@@ -11,14 +11,9 @@ def set_pop(singleInfected,size,fs,fi):
         population = core.singleinfectedpop(size,fs)
     else: population = core.fracinfectedpop(size,fi)
 
-def set_range(longrange, is_nbrs_4, p, f):
-    global popRange
-    if longrange: popRange = core.LongRangePop(population,is_nbrs_4,p,f)
-    else: popRange = core.ShortRangePop(population,is_nbrs_4)
-
 def pop_image(ax, pop):
-    from matplotlib.colors import ListedColormap, BoundaryNorm
     from core import Ti,Tr
+    from matplotlib.colors import ListedColormap, BoundaryNorm
     cmap = ListedColormap(['g','r','k'])
     norm = BoundaryNorm(  [ 0,  1,  Ti+1,  Ti+Tr+1], cmap.N, clip=True)
     im = ax.imshow(pop, interpolation='none', cmap=cmap, norm=norm)
@@ -29,20 +24,26 @@ def pop_image(ax, pop):
     return im
 
 def plotinitialpop():
-    rows,cols = population.shape
-    total = (rows-2)*(cols-2) 
-    plt.close('all')
-    fig = plt.figure(figsize=[6, 6])
+    fig = Figure(figsize=[6, 6])
     canvas = FigureCanvasQTAgg(fig)
-    plt.title( sir_title(0,*(core.census(population)/total)) )
-    pop_image(plt.gca(), population)
+    canvas.setWindowTitle('Initial Population')
+    ax = fig.add_subplot(111)
+    rows,cols = population.shape
+    total = (rows-2)*(cols-2)
+    ax.set_title( sir_title(0,*(core.census(population)/total)) )
+    pop_image(ax, population)
     canvas.show()    
 
+def set_range(longrange, is_nbrs_4, p, f):
+    global popRange
+    if longrange: popRange = core.LongRangePop(population,is_nbrs_4,p,f)
+    else: popRange = core.ShortRangePop(population,is_nbrs_4)
+
 def timeSeriesLines(ax, data):
-    l = ax.plot(data[:,0], data[:,1], 'g-', lw=2, label='Susceptible')
-    m = ax.plot(data[:,0], data[:,2], 'r-', lw=2, label='Infected'   )
-    n = ax.plot(data[:,0], data[:,3], 'k-', lw=2, label='Refractory' )
-    return [ l[0], m[0], n[0] ]
+    l, = ax.plot(data[:,0], data[:,1], 'g-', lw=2, label='Susceptible')
+    m, = ax.plot(data[:,0], data[:,2], 'r-', lw=2, label='Infected'   )
+    n, = ax.plot(data[:,0], data[:,3], 'k-', lw=2, label='Refractory' )
+    return [ l, m, n ]
 
 def plottimeseries(ti,tf):
     data = []
@@ -57,12 +58,13 @@ def plottimeseries(ti,tf):
     print(f'\r {100:.0f}% Done  \r', end='')
     data=np.reshape(data, newshape=(len(data),4))
     
-    plt.close('all')
-    fig = plt.figure(); fig.clear()
+    fig = Figure()
     canvas = FigureCanvasQTAgg(fig)
-    timeSeriesLines(plt.gca(), data)
-    plt.title( sir_title(*data[-1,:]) )
-    plt.legend()
+    canvas.setWindowTitle('Time series')
+    ax = fig.add_subplot(111)
+    timeSeriesLines(ax, data)
+    ax.set_title( sir_title(*data[-1,:]) )
+    ax.legend()
     canvas.show()
 
 class Population_visual:
@@ -70,9 +72,9 @@ class Population_visual:
         global popRange
         self.data = np.zeros(shape=(0,6))
         self.current_census = core.census(popRange.currentpop)
-        plt.close('all')
-        self.fig = plt.figure(figsize=[12, 6]); self.fig.clear()
+        self.fig = Figure(figsize=[12, 6])
         self.canvas = FigureCanvasQTAgg(self.fig)
+        self.canvas.setWindowTitle('Time evolution')
 
         self.axes = list()
         self.axes.append( self.fig.add_subplot(121) )
@@ -81,14 +83,17 @@ class Population_visual:
         
         self.im = pop_image(self.axes[0], popRange.currentpop)
         self.ln = timeSeriesLines(self.axes[1], self.data)
-        self.ln.append( self.axes[2].plot([],[],lw=2)[0] )
+        self.ln.append( *self.axes[2].plot([],[],lw=2) )
         self.axes[1].set_ylim(0.0, 1.0)
-        self.axes[1].set_title('Time Series\t' + r'$\tau_{i}$=%i    '%core.Ti +
-                       r'$\tau_{r}$=%i     nbrs=%i'%(core.Tr,len(popRange.nbrs) ) )
-        self.axes[1].legend()
-        self.axes[2].set_ylim(-3, 3)
-        self.axes[2].set_title(r'Order Parameter |$\frac{1}{N}\Sigma e^{i\phi}|$')
-        
+        tau_i = r'$\tau_{i}$=%i'%core.Ti
+        tau_r = r'$\tau_{r}$=%i'%core.Tr
+        nbrs = f'nbrs={len(popRange.nbrs)}'
+        self.axes[1].set_title(f'Time Series\t{tau_i}\t{tau_r}\t{nbrs}')
+        self.axes[1].legend(loc='upper right')
+        self.axes[2].set_ylim(-1, 3)
+        ham_dist_phase = r'|$\frac{1}{N}\Sigma e^{i\phi}$|'
+        self.axes[2].set_title(f'Order Parameter = {ham_dist_phase}')
+
     def update_lines(self):
         popRange.updatepop()
         self.current_census = core.census(popRange.currentpop)
@@ -109,11 +114,11 @@ class Population_visual:
             self.update_lines()
 
     def animate(self, ti, tf, delay):
-        import matplotlib.animation as animation
+        from matplotlib.animation import FuncAnimation
         popRange.jumptostep(ti)
         self.fig.tight_layout()
-        line_ani = animation.FuncAnimation(self.fig, self.update, (tf-ti-1),
-                                           interval=delay*1000, repeat=False)
+        line_ani = FuncAnimation(self.fig, self.update, (tf-ti-1),
+                                 interval=delay*1000, repeat=False)
         self.canvas.draw()
         self.canvas.show()
 

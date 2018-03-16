@@ -62,14 +62,15 @@ class Population(object):
                       [-1, 1], [0, 1], [1, 1]]
 
     def hamming_dist(self):
+        from numpy import pi, exp, sum, subtract, absolute
         phase = 0
         for i,j,a_ij in traverse(self.currentpop):
-            theta = (2*np.pi)*(a_ij-1)/(Ti+Tr)
-            phase += np.exp(1j*theta)
-            if a_ij != 0 : phase += np.exp(1j*theta)
+            theta = (2*pi)*(a_ij-1)/(Ti+Tr)
+            phase += exp(1j*theta)
+            if a_ij != 0 : phase += exp(1j*theta)
         phase /= self.total
-        hammdist = np.sum(np.subtract(self.currentpop,self.initpop))/self.total
-        return hammdist, np.absolute(phase)
+        hammdist = sum(subtract(self.currentpop,self.initpop))/self.total
+        return hammdist, absolute(phase)
 
     def jumptostep(self, t):
         self.currentpop = np.copy(self.initpop)
