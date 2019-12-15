@@ -1,7 +1,5 @@
 #!/usr/bin/python3.6
 import plotter as pltr
-import sys
-from PyQt5 import QtWidgets
 from ui import UI
 
 class Application(UI):
@@ -130,7 +128,9 @@ class Application(UI):
         self.statusbar.showMessage('Ready')
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
+    import sys
+    from PyQt5.QtWidgets import QApplication
+    app = QApplication(sys.argv)
     form = Application()
     form.show()
     sys.exit(app.exec_())

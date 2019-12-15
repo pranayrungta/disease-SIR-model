@@ -101,7 +101,7 @@ class UI(QtWidgets.QMainWindow):
         Anim_grpBox.setLayout(Animate_vLayout)
         #================================================================
 
-        self.setWindowTitle("Term Animator")
+        self.setWindowTitle("S I R Model")
         self.centralwidget = QtWidgets.QWidget(self)
         self.setCentralWidget(self.centralwidget)
         horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
