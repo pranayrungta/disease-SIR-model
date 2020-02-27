@@ -1,6 +1,6 @@
 #!/usr/bin/python3.6
-import plotter as pltr
-from ui import UI
+from . import plotter as pltr
+from .ui import UI
 
 class Application(UI):
     def __init__(self):
@@ -127,10 +127,13 @@ class Application(UI):
         pltr.animate(ti, tf, self.delay_spBox.value())
         self.statusbar.showMessage('Ready')
 
-if __name__ == '__main__':
+def main():
     import sys
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
     form = Application()
     form.show()
     sys.exit(app.exec_())
+
+if __name__ == '__main__':
+	main()

@@ -1,7 +1,7 @@
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 import numpy as np
-import core
+from . import core
 
 sir_title = lambda t,s,i,r: f'Time={t}      S={s:.2f}   I={i:.2f}   R={r:.2f}'
 
@@ -12,7 +12,7 @@ def set_pop(singleInfected,size,fs,fi):
     else: population = core.fracinfectedpop(size,fi)
 
 def pop_image(axes, pop):
-    from core import Ti,Tr
+    from .core import Ti,Tr
     from matplotlib.colors import ListedColormap, BoundaryNorm
     cmap = ListedColormap(['g','r','k'])
     norm = BoundaryNorm(  [ 0,  1,  Ti+1,  Ti+Tr+1], cmap.N, clip=True)
