@@ -3,13 +3,13 @@ import numpy as np
 Ti=4;  Tr=10
 
 def traverse(population):
-    rows,cols = population.shape
+    rows, cols = population.shape
     for i in range(1,rows-1):
-        for j in range(1,cols-1):
-            yield i,j,population[i,j]
+        for j in range(1, cols-1):
+            yield i, j, population[i,j]
 
 def set_boundary(mat):
-    rows,cols = mat.shape
+    rows, cols = mat.shape
     for i in range(rows):
         mat[i, 0] = Ti+1
         mat[i, cols-1] = Ti+1
