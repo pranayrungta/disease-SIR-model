@@ -5,11 +5,19 @@ from . import core
 
 sir_title = lambda t,s,i,r: f'Time={t}      S={s:.2f}   I={i:.2f}   R={r:.2f}'
 
-def set_pop(singleInfected,size,fs,fi):
+def set_pop(singleInfected,size,fs):
     global population
     if singleInfected:
-        population = core.singleinfectedpop(size,fs)
-    else: population = core.fracinfectedpop(size,fi)
+        population = core.singleinfectedpop(size, fs)
+    else: population = core.fracinfectedpop(size, fs)
+
+def set_long_range(is_nbrs_4, p, f):
+    global popRange
+    popRange = core.LongRangePop(population,is_nbrs_4,p,f)
+
+def set_short_range(is_nbrs_4):
+    global popRange
+    popRange = core.ShortRangePop(population,is_nbrs_4)
 
 def pop_image(axes, pop):
     from .core import Ti,Tr
@@ -32,12 +40,8 @@ def plotinitialpop():
     total = (rows-2)*(cols-2)
     axes.set_title( sir_title(0,*(core.census(population)/total)) )
     pop_image(axes, population)
-    canvas.show()    
+    canvas.show()
 
-def set_range(longrange, is_nbrs_4, p, f):
-    global popRange
-    if longrange: popRange = core.LongRangePop(population,is_nbrs_4,p,f)
-    else: popRange = core.ShortRangePop(population,is_nbrs_4)
 
 def timeSeriesLines(axes, data):
     l, = axes.plot(data[:,0], data[:,1], 'g-', lw=2, label='Susceptible')
@@ -57,7 +61,7 @@ def plottimeseries(ti,tf):
         print(f'{perCom:.0f}% Done  ', end='\r')
     print(f'{100:.0f}% Done  ', end='\r')
     data=np.reshape(data, newshape=(len(data),4))
-    
+
     fig = Figure()
     canvas = FigureCanvasQTAgg(fig)
     canvas.setWindowTitle('Time series')
@@ -80,7 +84,7 @@ class Population_visual:
         self.axes.append( self.fig.add_subplot(121) )
         self.axes.append( self.fig.add_subplot(222) )
         self.axes.append( self.fig.add_subplot(224) )
-        
+
         self.im = pop_image(self.axes[0], popRange.currentpop)
         self.ln = timeSeriesLines(self.axes[1], self.data)
         self.ln.append( *self.axes[2].plot([],[],lw=2) )

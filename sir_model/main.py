@@ -18,45 +18,36 @@ class Application(UI):
         self.statusbar.showMessage('Working...')
 
         self.s0.setValue(0.45)
+        self.r0.setDisabled(True)
         self.popsize.setValue(40)
+        self.longrangecheck(False)
         self.tstart.setValue(0)
         self.tend.setValue(50)
+        self.disable_plot_buttons()
 
         self.singleinfected.toggled.connect(self.singleinfectedcheck)
-        self.s0.valueChanged.connect(self.set1s)
-        self.i0.valueChanged.connect(self.set1i)
-        self.r0.setDisabled(True)
-
+        self.s0.valueChanged.connect(self.set_sus_changed)
+        self.i0.valueChanged.connect(self.set_inf_changed)
+        self.popsize.valueChanged.connect(self.disable_plot_buttons)
         self.generatebutton.clicked.connect(self.generatepop)
-        self.plot_but.clicked.connect(self.plottingpop)
-        self.plot_but.setDisabled(True)
-
         self.longrange.toggled.connect(self.longrangecheck)
-        self.probrewire.setDisabled(True)
-        self.probrewire.hide()
-        self.prob_label.hide()
-        self.freqrewire.setDisabled(True)
-        self.freqrewire.hide()
-        self.freq_label.hide()
-
+        self.plot_but.clicked.connect(pltr.plotinitialpop)
         self.animate_but.clicked.connect(self.animate_butfunc)
-        self.animate_but.setDisabled(True)
         self.pltSr_but.clicked.connect(self.pltSr_butfunc)
-        self.pltSr_but.setDisabled(True)
 
         self.statusbar.showMessage('Ready')
 
-    def disable_plot_buttons(self):
-        self.animate_but.setDisabled(True)
-        self.pltSr_but.setDisabled(True)
-        self.plot_but.setDisabled(True)
+    def disable_plot_buttons(self, disable=True):
+        self.animate_but.setDisabled(disable)
+        self.pltSr_but.setDisabled(disable)
+        self.plot_but.setDisabled(disable)
 
-    def set1s(self):
+    def set_sus_changed(self):
         self.disable_plot_buttons()
         self.r0.setValue(self.s0.value())
         self.i0.setValue(1-2*self.s0.value())
 
-    def set1i(self):
+    def set_inf_changed(self):
         self.disable_plot_buttons()
         self.s0.setValue((1-self.i0.value())/2.0)
         self.r0.setValue(self.s0.value())
@@ -70,11 +61,10 @@ class Application(UI):
         if checked:
             self.i0.setValue(0.0)
             self.i0.setDisabled(True)
-            self.s0.valueChanged.disconnect()
             self.s0.valueChanged.connect(self.set_single_inf_values)
         else:
             self.i0.setEnabled(True)
-            self.s0.valueChanged.connect(self.set1s)
+            self.s0.valueChanged.connect(self.set_sus_changed)
 
     @responsive_action
     def longrangecheck(self, checked):
@@ -97,22 +87,18 @@ class Application(UI):
     def generatepop(self, _):
         pltr.set_pop(self.singleinfected.isChecked(),
                      int(self.popsize.value()),
-                     self.s0.value(),self.i0.value() )
-        self.animate_but.setDisabled(False)
-        self.pltSr_but.setDisabled(False)
-        self.plot_but.setDisabled(False)
+                     self.s0.value() )
+        self.disable_plot_buttons(False)
 
     def set_popRange(self):
-        try: p = float(self.probrewire.text())
-        except ValueError: p=None
-        try: f = float(self.freqrewire.text())
-        except ValueError: f=None
-        pltr.set_range(self.longrange.isChecked(),self.nbr4.isChecked(),p,f)
+        if self.longrange.isChecked():
+            try: p = float(self.probrewire.text())
+            except ValueError: p=0.1
+            try: f = float(self.freqrewire.text())
+            except ValueError: f=10
+            pltr.set_long_range(self.nbr4.isChecked(), p, f)
+        else: pltr.set_short_range(self.nbr4.isChecked())
         return int(self.tstart.value()), int(self.tend.value())
-
-    @responsive_action
-    def plottingpop(self, _):
-        pltr.plotinitialpop()
 
     @responsive_action
     def pltSr_butfunc(self, _):

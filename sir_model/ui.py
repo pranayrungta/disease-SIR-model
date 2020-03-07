@@ -24,31 +24,31 @@ class UI(QtWidgets.QMainWindow):
         super().__init__()
 
         self.singleinfected = QtWidgets.QCheckBox("Single Infected Individual")
-        self.s0_label = QtWidgets.QLabel("So:")
+        s0_label = QtWidgets.QLabel("So:")
+        i0_label = QtWidgets.QLabel("Io:")
+        r0_label = QtWidgets.QLabel("Ro:")
+        size_label = QtWidgets.QLabel("Size:")
         self.s0 = DoubleSpinBox(1.0, 0.1)
-        self.i0_label = QtWidgets.QLabel("Io:")
         self.i0 = DoubleSpinBox(1.0, 0.1)
-        self.r0_label = QtWidgets.QLabel("Ro:")
-        self.r0 = DoubleSpinBox(1.0, 0.1)        
-        self.size_label = QtWidgets.QLabel("Size:")
+        self.r0 = DoubleSpinBox(1.0, 0.1)
         self.popsize = SpinBox(200, 10)
         self.popsize.setProperty("value", 0)
         self.generatebutton = QtWidgets.QPushButton("Generate")
         self.plot_but = QtWidgets.QPushButton("Plot")
-        
+
         initPopPara_Layout = QtWidgets.QVBoxLayout()
         initPopPara_Layout.addWidget(self.singleinfected)
-        initPopPara_Layout.addLayout(FormLay([[self.s0_label,  self.s0], 
-                                              [self.i0_label,  self.i0], 
-                                              [self.r0_label,  self.r0], 
-                                              [self.size_label,self.popsize]]))
+        initPopPara_Layout.addLayout(FormLay([[s0_label,   self.s0],
+                                              [i0_label,   self.i0],
+                                              [r0_label,   self.r0],
+                                              [size_label, self.popsize]]))
         initPopPara_Layout.addStretch()
         initPopPara_Layout.addWidget(self.generatebutton)
         initPopPara_Layout.addWidget(self.plot_but)
         InitPop_grpBox = QtWidgets.QGroupBox("Initial Population")
         InitPop_grpBox.setLayout(initPopPara_Layout)
         #==============================================================
-        
+
         self.nbr4 = QtWidgets.QRadioButton("von Neumann(4)")
         self.nbr4.setChecked(True)
         self.nbr8 = QtWidgets.QRadioButton("Moore(8)")
@@ -59,23 +59,23 @@ class UI(QtWidgets.QMainWindow):
         self.freqrewire = QtWidgets.QLineEdit()
 
         nbrHd_vLayout = QtWidgets.QVBoxLayout()
-        nbrHd_vLayout.addWidget(self.nbr4)        
+        nbrHd_vLayout.addWidget(self.nbr4)
         nbrHd_vLayout.addWidget(self.nbr8)
         nbrHd_vLayout.addWidget(self.longrange)
         nbrHd_vLayout.addStretch()
-        nbrHd_vLayout.addLayout(FormLay([[self.prob_label,self.probrewire], 
+        nbrHd_vLayout.addLayout(FormLay([[self.prob_label,self.probrewire],
                                          [self.freq_label,self.freqrewire]]))
         NbrHd_grpBox = QtWidgets.QGroupBox("Neighbourhood  ")
         NbrHd_grpBox.setLayout(nbrHd_vLayout)
         #=================================================================
-        
-        self.st1_label = QtWidgets.QLabel("Start at t1")
+
+        st1_label = QtWidgets.QLabel("Start at t1")
         self.tstart = SpinBox(10000,10)
         self.tstart.setProperty("value", 0)
-        self.et2_label = QtWidgets.QLabel("End at t2")
+        et2_label = QtWidgets.QLabel("End at t2")
         self.tend = SpinBox(100000,10)
         self.tend.setProperty("value", 0)
-        self.dely_label = QtWidgets.QLabel("Delay(secs)")
+        delay_label = QtWidgets.QLabel("Delay(secs)")
         self.delay_spBox = DoubleSpinBox(5.0, 0.5)
         self.delay_spBox.setMinimum(0.05)
         self.delay_spBox.setValue(0.2)
@@ -84,11 +84,11 @@ class UI(QtWidgets.QMainWindow):
 
 
         gridLayout = QtWidgets.QGridLayout()
-        gridLayout.addWidget(self.st1_label,   0, 0, 1, 1)
+        gridLayout.addWidget(st1_label,        0, 0, 1, 1)
         gridLayout.addWidget(self.tstart,      1, 0, 1, 1)
-        gridLayout.addWidget(self.et2_label,   0, 1, 1, 1)
+        gridLayout.addWidget(et2_label,        0, 1, 1, 1)
         gridLayout.addWidget(self.tend,        1, 1, 1, 1)
-        gridLayout.addWidget(self.dely_label,  2, 0, 1, 1)
+        gridLayout.addWidget(delay_label,      2, 0, 1, 1)
         gridLayout.addWidget(self.delay_spBox, 2, 1, 1, 1)
         anim_Plot_HLayout = QtWidgets.QHBoxLayout()
         anim_Plot_HLayout.addWidget(self.animate_but)
@@ -111,7 +111,7 @@ class UI(QtWidgets.QMainWindow):
         self.statusbar = QtWidgets.QStatusBar(self)
         self.setStatusBar(self.statusbar)
         self.statusbar.showMessage('Working...')
-        
+
 
 if __name__ == '__main__':
     import sys

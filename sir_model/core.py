@@ -27,10 +27,10 @@ def singleinfectedpop(size, fs):
     a[x,y] = 1  #infected
     return a
 
-def fracinfectedpop(size, fi):
+def fracinfectedpop(size, fs):
     a = np.random.rand(size, size)
     set_boundary(a)
-    fs = (1-fi)/2
+    fi = 1-2*fs
     for i,j,aij in traverse(a):
         if aij<fs: a[i,j] = 0   #suseptible
         elif aij<fi+fs: a[i,j] = 1   #infected
@@ -82,9 +82,9 @@ class Population(object):
         sus,ref = [],[]
         for i,j, a_ij in traverse(self.initpop):
             if 0 < a_ij < Ti+Tr:
-                sus.append( sum(self.initpop[i+m,j+n]==0 
+                sus.append( sum(self.initpop[i+m,j+n]==0
                                 for [m,n] in self.nbrs) )
-                ref.append( sum(Ti <self.initpop[i+m,j+n]<=Tr 
+                ref.append( sum(Ti <self.initpop[i+m,j+n]<=Tr
                                 for [m,n] in self.nbrs) )
         return np.mean(sus)/len(self.nbrs),np.mean(ref)/len(self.nbrs)
 
