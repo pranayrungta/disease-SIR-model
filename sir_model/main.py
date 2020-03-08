@@ -37,6 +37,16 @@ class Application(UI):
 
         self.statusbar.showMessage('Ready')
 
+    @responsive_action
+    def singleinfectedcheck(self, checked):
+        if checked:
+            self.i0.setValue(0.0)
+            self.i0.setDisabled(True)
+            self.s0.valueChanged.connect(self.set_single_inf_values)
+        else:
+            self.i0.setEnabled(True)
+            self.s0.valueChanged.connect(self.set_sus_changed)
+
     def disable_plot_buttons(self, disable=True):
         self.animate_but.setDisabled(disable)
         self.pltSr_but.setDisabled(disable)
@@ -55,16 +65,6 @@ class Application(UI):
     def set_single_inf_values(self):
         self.disable_plot_buttons()
         self.r0.setValue(1-self.s0.value())
-
-    @responsive_action
-    def singleinfectedcheck(self, checked):
-        if checked:
-            self.i0.setValue(0.0)
-            self.i0.setDisabled(True)
-            self.s0.valueChanged.connect(self.set_single_inf_values)
-        else:
-            self.i0.setEnabled(True)
-            self.s0.valueChanged.connect(self.set_sus_changed)
 
     @responsive_action
     def longrangecheck(self, checked):
@@ -98,16 +98,17 @@ class Application(UI):
             except ValueError: f=10
             pltr.set_long_range(self.nbr4.isChecked(), p, f)
         else: pltr.set_short_range(self.nbr4.isChecked())
-        return int(self.tstart.value()), int(self.tend.value())
 
     @responsive_action
     def pltSr_butfunc(self, _):
-        ti, tf = self.set_popRange()
-        pltr.plottimeseries(ti, tf)
+        self.set_popRange()
+        ti, tf = int(self.tstart.value()), int(self.tend.value())
+        pltr.plot_time_series(ti, tf)
 
     @responsive_action
     def animate_butfunc(self, _):
-        ti, tf = self.set_popRange()
+        self.set_popRange()
+        ti, tf = int(self.tstart.value()), int(self.tend.value())
         pltr.animate(ti, tf, self.delay_spBox.value())
 
 

@@ -1,15 +1,17 @@
 from PyQt5 import QtWidgets
 
-def DoubleSpinBox(maximum, singleStep):
+def DoubleSpinBox(minimum=0, maximum=1.0, singleStep=0.1):
     box = QtWidgets.QDoubleSpinBox()
+    box.setMinimum(minimum)
     box.setMaximum(maximum)
     box.setSingleStep(singleStep)
     return box
 
-def SpinBox(maximum, singleStep):
+def SpinBox(maximum, singleStep, init_value=0):
     box = QtWidgets.QSpinBox()
     box.setMaximum(maximum)
     box.setSingleStep(singleStep)
+    box.setProperty("value", init_value)
     return box
 
 def FormLay(label_Field_list):
@@ -28,11 +30,10 @@ class UI(QtWidgets.QMainWindow):
         i0_label = QtWidgets.QLabel("Io:")
         r0_label = QtWidgets.QLabel("Ro:")
         size_label = QtWidgets.QLabel("Size:")
-        self.s0 = DoubleSpinBox(1.0, 0.1)
-        self.i0 = DoubleSpinBox(1.0, 0.1)
-        self.r0 = DoubleSpinBox(1.0, 0.1)
+        self.s0 = DoubleSpinBox()
+        self.i0 = DoubleSpinBox()
+        self.r0 = DoubleSpinBox()
         self.popsize = SpinBox(200, 10)
-        self.popsize.setProperty("value", 0)
         self.generatebutton = QtWidgets.QPushButton("Generate")
         self.plot_but = QtWidgets.QPushButton("Plot")
 
@@ -69,34 +70,24 @@ class UI(QtWidgets.QMainWindow):
         NbrHd_grpBox.setLayout(nbrHd_vLayout)
         #=================================================================
 
-        st1_label = QtWidgets.QLabel("Start at t1")
+        st1_label = QtWidgets.QLabel("Start time")
         self.tstart = SpinBox(10000,10)
-        self.tstart.setProperty("value", 0)
-        et2_label = QtWidgets.QLabel("End at t2")
+        et2_label = QtWidgets.QLabel("End time")
         self.tend = SpinBox(100000,10)
-        self.tend.setProperty("value", 0)
         delay_label = QtWidgets.QLabel("Delay(secs)")
-        self.delay_spBox = DoubleSpinBox(5.0, 0.5)
-        self.delay_spBox.setMinimum(0.05)
+        self.delay_spBox = DoubleSpinBox(0.05, 5.0, 0.5)
         self.delay_spBox.setValue(0.2)
+        time_layout = FormLay([[st1_label,   self.tstart],
+                               [et2_label,   self.tend],
+                               [delay_label, self.delay_spBox]])
         self.animate_but = QtWidgets.QPushButton("Animate!")
         self.pltSr_but = QtWidgets.QPushButton("Plot Time Series")
 
-
-        gridLayout = QtWidgets.QGridLayout()
-        gridLayout.addWidget(st1_label,        0, 0, 1, 1)
-        gridLayout.addWidget(self.tstart,      1, 0, 1, 1)
-        gridLayout.addWidget(et2_label,        0, 1, 1, 1)
-        gridLayout.addWidget(self.tend,        1, 1, 1, 1)
-        gridLayout.addWidget(delay_label,      2, 0, 1, 1)
-        gridLayout.addWidget(self.delay_spBox, 2, 1, 1, 1)
-        anim_Plot_HLayout = QtWidgets.QHBoxLayout()
-        anim_Plot_HLayout.addWidget(self.animate_but)
-        anim_Plot_HLayout.addWidget(self.pltSr_but)
         Animate_vLayout = QtWidgets.QVBoxLayout()
-        Animate_vLayout.addLayout(gridLayout)
-        Animate_vLayout.addLayout(anim_Plot_HLayout)
+        Animate_vLayout.addLayout(time_layout)
         Animate_vLayout.addStretch()
+        Animate_vLayout.addWidget(self.animate_but)
+        Animate_vLayout.addWidget(self.pltSr_but)
         Anim_grpBox = QtWidgets.QGroupBox("Animate")
         Anim_grpBox.setLayout(Animate_vLayout)
         #================================================================

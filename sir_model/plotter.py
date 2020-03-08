@@ -49,7 +49,7 @@ def timeSeriesLines(axes, data):
     n, = axes.plot(data[:,0], data[:,3], 'k-', lw=2, label='Refractory' )
     return [ l, m, n ]
 
-def plottimeseries(ti,tf):
+def plot_time_series(ti,tf):
     data = []
     popRange.jumptostep(ti)
     current_census = [None, None, None]
