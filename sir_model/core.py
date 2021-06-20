@@ -8,42 +8,40 @@ def traverse(population):
         for j in range(1, cols-1):
             yield i, j, population[i,j]
 
-def set_boundary(mat):
-    rows, cols = mat.shape
-    for i in range(rows):
-        mat[i, 0] = Ti+1
-        mat[i, cols-1] = Ti+1
-    for j in range(cols):
-        mat[0, j] = Ti+1
-        mat[rows-1, j] = Ti+1
+def rand(size):
+    a = np.random.rand(size,size)
+    a[ :, 0 ] = 1
+    a[ :, -1] = 1
+    a[ 0, : ] = 1
+    a[-1, : ] = 1
+    return a
 
 def singleinfectedpop(size, fs):
-    a = np.random.rand(size,size)
-    set_boundary(a)
-    for i,j,aij in traverse(a):
-        if aij<fs: a[i,j] = 0 # suseptible
-        else: a[i,j] = Ti+1 # refractory
+    mat = np.full((size, size), Ti+1, dtype=int) # refractory
+    a = rand(size)
+    mat[a<fs] = 0  # suseptible
     x,y = np.random.randint(1,size-1,2)
-    a[x,y] = 1  #infected
-    return a
+    mat[x,y] = 1  #infected
+    return mat
 
 def fracinfectedpop(size, fs):
-    a = np.random.rand(size, size)
-    set_boundary(a)
-    fi = 1-2*fs
-    for i,j,aij in traverse(a):
-        if aij<fs: a[i,j] = 0   #suseptible
-        elif aij<fi+fs: a[i,j] = 1   #infected
-        else: a[i,j] = Ti+1  #refractory
-    return a
+    mat = np.full((size, size), Ti+1, dtype=int) # refractory
+    a = rand(size)
+    sus = a<fs # say fs => <0.3
+    inf = (~sus) & (a<1-fs)# say  0.3 < inf < 0.7
+    mat[sus] = 0
+    mat[inf] = 1
+    return mat
 
 def census(population):
-    sus, inf, ref = 0, 0, 0
-    for i,j,a_ij in traverse(population):
-        if a_ij == 0: sus += 1
-        elif a_ij <= Ti: inf += 1
-        else: ref += 1
+    mat = population[1:-1, 1:-1]
+    sus = (mat==0).sum()
+    inf = ((0<mat) & (mat<=Ti)).sum()
+    ref = (mat>Ti).sum()
     return np.array([sus, inf, ref])
+
+
+
 
 class Population(object):
     def __init__(self, initpop, is_nbrs_4):
@@ -62,15 +60,14 @@ class Population(object):
                       [-1, 1], [0, 1], [1, 1]]
 
     def hamming_dist(self):
-        from numpy import pi, exp, sum, subtract, absolute
-        phase = 0
-        for i,j,a_ij in traverse(self.currentpop):
-            theta = (2*pi)*(a_ij-1)/(Ti+Tr)
-            phase += exp(1j*theta)
-            if a_ij != 0 : phase += exp(1j*theta)
-        phase /= self.total
-        hammdist = sum(subtract(self.currentpop,self.initpop))/self.total
+        from numpy import pi, exp, absolute
+        a = self.currentpop[1:-1,1:-1]
+        theta = 2*pi*(a-1)/(Ti+Tr)
+        phase = exp(1j*theta)
+        phase = (phase[a!=0].sum() + phase.sum())/self.total
+        hammdist = (self.currentpop - self.initpop).sum()/self.total
         return hammdist, absolute(phase)
+
 
     def jumptostep(self, t):
         self.currentpop = np.copy(self.initpop)
@@ -174,3 +171,7 @@ class VisitorPop(Population):
 
     def infCond(self,a_ij):
         return a_ij<Ti+Tr
+
+if __name__=='__main__':
+    s = singleinfectedpop(10,0.5)
+    p = ShortRangePop(s)
