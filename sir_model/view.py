@@ -40,6 +40,11 @@ class Initpop(QtWidgets.QWidget):
         self.set_all_layouts()
         self.make_connections()
 
+    def read_parameters(self):
+        return {'singleInfected' : self.singleinfected.isChecked(),
+                'popsize' : self.popsize.value(),
+                's0': self.s0.value()}
+
     def make_connections(self):
         self.r0.setDisabled(True)
         self.popsize.setValue(40)
@@ -109,6 +114,28 @@ class Neighbourhood(QtWidgets.QWidget):
         self.set_all_layouts()
         self.longrange.toggled.connect(self.longrangecheck)
 
+    def get_values(self):
+        lr =  self.longrange.isChecked()
+        nbr4 = self.nbr4.isChecked()
+        vals = {'longRange':lr, 'nbr4': nbr4}
+        if lr:
+            try:
+                p = float(self.probrewire.text())
+                if p<0 or p>1: raise ValueError
+            except ValueError: p=0.1
+            try: f = int(self.freqrewire.text())
+            except ValueError: f=10
+            self.probrewire.setText(str(p))
+            self.freqrewire.setText(str(f))
+            vals.update({'p':p, 'f':f})
+        return vals
+
+    def longrangecheck(self, checked):
+        for i in [self.prob_label, self.probrewire,
+                  self.freq_label, self.freqrewire]:
+            i.setVisible(checked)
+
+
     def set_all_layouts(self):
         nbrHd_vLayout = QtWidgets.QVBoxLayout()
         nbrHd_vLayout.addWidget(self.nbr4)
@@ -124,22 +151,6 @@ class Neighbourhood(QtWidgets.QWidget):
         self.setLayout(layout)
         self.longrangecheck(False)
 
-    def longrangecheck(self, checked):
-        if checked:
-            self.probrewire.setDisabled(False)
-            self.probrewire.show()
-            self.prob_label.show()
-            self.freqrewire.setDisabled(False)
-            self.freqrewire.show()
-            self.freq_label.show()
-        else:
-            self.probrewire.setDisabled(True)
-            self.probrewire.hide()
-            self.prob_label.hide()
-            self.freqrewire.setDisabled(True)
-            self.freqrewire.hide()
-            self.freq_label.hide()
-
 
 class Animate(QtWidgets.QWidget):
     def __init__(self):
@@ -150,6 +161,11 @@ class Animate(QtWidgets.QWidget):
         self.animate_but = QtWidgets.QPushButton("Animate!")
         self.pltSr_but = QtWidgets.QPushButton("Plot Time Series")
         self.set_all_layouts()
+
+    def get_values(self):
+        return (int(self.tstart.value()),
+                int(self.tend.value()),
+                self.delay_spBox.value() )
 
     def set_all_layouts(self):
         self.delay_spBox.setValue(0.2)
@@ -204,6 +220,6 @@ class UI(QtWidgets.QMainWindow):
 if __name__ == '__main__':
     # import sys
     # app = QtWidgets.QApplication(sys.argv)
-    form = UI()
+    form = Neighbourhood()
     form.show()
     # sys.exit(app.exec_())

@@ -6,37 +6,31 @@ class Application(UI):
     def __init__(self):
         super().__init__()
         self.initpop.generatebutton.clicked.connect(self.generatepop)
+        self.initpop.plot_but.clicked.connect(pltr.plotinitialpop)
         self.anim.animate_but.clicked.connect(self.animate_butfunc)
         self.anim.pltSr_but.clicked.connect(self.pltSr_butfunc)
-        self.initpop.plot_but.clicked.connect(pltr.plotinitialpop)
         self.disable_plot_buttons(disable=True)
 
     def generatepop(self, _):
-        pltr.set_pop(self.initpop.singleinfected.isChecked(),
-                     int(self.initpop.popsize.value()),
-                     self.initpop.s0.value() )
+        p = self.initpop.read_parameters()
+        pltr.set_pop(p['singleInfected'], p['popsize'], p['s0'])
         self.disable_plot_buttons(False)
 
     def set_popRange(self):
-        if self.nbrhd.longrange.isChecked():
-            try: p = float(self.nbrhd.probrewire.text())
-            except ValueError: p=0.1
-            try: f = float(self.nbrhd.freqrewire.text())
-            except ValueError: f=10
-            pltr.set_long_range(self.nbrhd.nbr4.isChecked(), p, f)
+        p = self.nbrhd.get_values()
+        if p['longRange']:
+            pltr.set_long_range(p['nbr4'], p['p'], p['f'])
         else: pltr.set_short_range(self.nbrhd.nbr4.isChecked())
 
     def pltSr_butfunc(self, _):
         self.set_popRange()
-        ti = int(self.anim.tstart.value())
-        tf = int(self.anim.tend.value())
+        ti, tf, _ = self.anim.get_values()
         pltr.plot_time_series(ti, tf)
 
     def animate_butfunc(self, _):
         self.set_popRange()
-        ti = int(self.anim.tstart.value())
-        tf = int(self.anim.tend.value())
-        pltr.animate(ti, tf, self.anim.delay_spBox.value())
+        ti, tf, dt = self.anim.get_values()
+        pltr.animate(ti, tf, dt)
 
 
 def main():
