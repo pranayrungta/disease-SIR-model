@@ -40,12 +40,6 @@ class Initpop(QtWidgets.QWidget):
         self.set_all_layouts()
         self.make_connections()
 
-        # self.newValueSelected.connect(self.printchange)
-        # self.i=0
-    # def printchange(self):
-    #     print("new value", self.i, flush=True)
-    #     self.i += 1
-
     def make_connections(self):
         self.r0.setDisabled(True)
         self.popsize.setValue(40)
@@ -54,7 +48,7 @@ class Initpop(QtWidgets.QWidget):
         self.s0.valueChanged.connect(self.value_changed)
         self.i0.valueChanged.connect(self.value_changed)
         self.popsize.valueChanged.connect(self.newValueSelected.emit)
-        self.i0.valueChanged.emit(0)
+        self.s0.setValue(0.45)
 
     def value_changed(self):
         for i in [self.s0, self.i0, self.r0]:
@@ -179,13 +173,19 @@ class Animate(QtWidgets.QWidget):
         self.setLayout(layout)
 
 
-class UInew(QtWidgets.QMainWindow):
+class UI(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.initpop = Initpop()
         self.nbrhd = Neighbourhood()
         self.anim = Animate()
         self.set_all_layouts()
+        self.initpop.newValueSelected.connect(self.disable_plot_buttons)
+
+    def disable_plot_buttons(self, disable=True):
+        self.anim.animate_but.setDisabled(disable)
+        self.anim.pltSr_but.setDisabled(disable)
+        self.initpop.plot_but.setDisabled(disable)
 
     def set_all_layouts(self):
         self.setWindowTitle("S I R Model")
@@ -204,7 +204,6 @@ class UInew(QtWidgets.QMainWindow):
 if __name__ == '__main__':
     # import sys
     # app = QtWidgets.QApplication(sys.argv)
-    form = Initpop()
-    # form = UI()
+    form = UI()
     form.show()
     # sys.exit(app.exec_())
