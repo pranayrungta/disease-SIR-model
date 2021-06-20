@@ -1,26 +1,56 @@
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 import numpy as np
-from . import core
+from sir_model import core
 
 sir_title = lambda t,s,i,r: f'Time={t}      S={s:.2f}   I={i:.2f}   R={r:.2f}'
 
-def set_pop(singleInfected,size,fs):
-    global population
-    if singleInfected:
-        population = core.singleinfectedpop(size, fs)
-    else: population = core.fracinfectedpop(size, fs)
 
-def set_long_range(is_nbrs_4, p, f):
-    global popRange
-    popRange = core.LongRangePop(population,is_nbrs_4,p,f)
+class Model:
+    def __init__(self):
+        self.population = None
+        self.popRange = None
+        self.data = np.zeros(shape=(0,6))
 
-def set_short_range(is_nbrs_4):
-    global popRange
-    popRange = core.ShortRangePop(population,is_nbrs_4)
+    def set_pop(self, singleInfected, size, fs):
+        if singleInfected:
+            self.population = core.singleinfectedpop(size, fs)
+        else: self.population = core.fracinfectedpop(size, fs)
+
+    def set_long_range(self, is_nbrs_4, p, f):
+        self.popRange = core.LongRangePop(self.population,is_nbrs_4,p,f)
+
+    def set_short_range(self, is_nbrs_4):
+        self.popRange = core.ShortRangePop(self.population,is_nbrs_4)
+
+    def time_series_data(self, ti, tf):
+        data = []
+        self.popRange.jumptostep(ti)
+        current_census = [None, None, None]
+        while self.popRange.time<tf and current_census[0]!=self.popRange.total:
+            self.popRange.updatepop()
+            current_census = core.census(self.popRange.currentpop)
+            data.append([self.popRange.time,*(current_census/self.popRange.total)])
+            perCom = (self.popRange.time-ti)/(tf-ti)*100
+            print(f'{perCom:.0f}% Done  ', end='\r')
+        print(f'{100:.0f}% Done  ', end='\r')
+        data=np.reshape(data, newshape=(len(data),4))
+        return data
+
+    def animation_data(self):
+        currentpop = self.popRange.currentpop
+        self.popRange.updatepop()
+        current_census = core.census(currentpop)
+        census_frac = current_census/self.popRange.total
+        self.data = np.vstack((self.data,
+           [self.popRange.time, *census_frac,
+            *self.popRange.hamming_dist() ]  ))
+        return currentpop, self.data, self.popRange.time, census_frac
+
+
 
 def pop_image(axes, pop):
-    from .core import Ti,Tr
+    from sir_model.core import Ti,Tr
     from matplotlib.colors import ListedColormap, BoundaryNorm
     cmap = ListedColormap(['g','r','k'])
     norm = BoundaryNorm(  [ 0,  1,  Ti+1,  Ti+Tr+1], cmap.N, clip=True)
@@ -31,7 +61,7 @@ def pop_image(axes, pop):
     axes.set_xlim(0,cols-1); axes.set_ylim(0,rows-1)
     return im
 
-def plotinitialpop():
+def plotinitialpop(population):
     fig = Figure(figsize=[6, 6])
     canvas = FigureCanvasQTAgg(fig)
     canvas.setWindowTitle('Initial Population')
@@ -49,19 +79,7 @@ def timeSeriesLines(axes, data):
     n, = axes.plot(data[:,0], data[:,3], 'k-', lw=2, label='Refractory' )
     return [ l, m, n ]
 
-def plot_time_series(ti,tf):
-    data = []
-    popRange.jumptostep(ti)
-    current_census = [None, None, None]
-    while popRange.time<tf and current_census[0]!=popRange.total:
-        popRange.updatepop()
-        current_census = core.census(popRange.currentpop)
-        data.append([popRange.time,*(current_census/popRange.total)])
-        perCom = (popRange.time-ti)/(tf-ti)*100
-        print(f'{perCom:.0f}% Done  ', end='\r')
-    print(f'{100:.0f}% Done  ', end='\r')
-    data=np.reshape(data, newshape=(len(data),4))
-
+def plot_time_series(data):
     fig = Figure()
     canvas = FigureCanvasQTAgg(fig)
     canvas.setWindowTitle('Time series')
@@ -72,59 +90,47 @@ def plot_time_series(ti,tf):
     canvas.show()
 
 class Population_visual:
-    def __init__(self):
-        global popRange
-        self.data = np.zeros(shape=(0,6))
-        self.current_census = core.census(popRange.currentpop)
+    def __init__(self, nbrs, currentpop):
+        # super().__init__()
         self.fig = Figure(figsize=[12, 6])
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.canvas.setWindowTitle('Time evolution')
-
         self.axes = list()
         self.axes.append( self.fig.add_subplot(121) )
         self.axes.append( self.fig.add_subplot(222) )
         self.axes.append( self.fig.add_subplot(224) )
 
-        self.im = pop_image(self.axes[0], popRange.currentpop)
-        self.ln = timeSeriesLines(self.axes[1], self.data)
+        self.im = pop_image(self.axes[0], currentpop)
+        self.ln = timeSeriesLines(self.axes[1], np.zeros(shape=(0,6)))
         self.ln.append( *self.axes[2].plot([],[],lw=2) )
         self.axes[1].set_ylim(0.0, 1.0)
         tau_i = r'$\tau_{i}$=%i'%core.Ti
         tau_r = r'$\tau_{r}$=%i'%core.Tr
-        nbrs = f'nbrs={len(popRange.nbrs)}'
+        nbrs = f'nbrs={nbrs}'
         self.axes[1].set_title(f'Time Series\t{tau_i}\t{tau_r}\t{nbrs}')
         self.axes[1].legend(loc='upper right')
         self.axes[2].set_ylim(-1, 3)
         ham_dist_phase = r'|$\frac{1}{N}\Sigma e^{i\phi}$|'
         self.axes[2].set_title(f'Order Parameter = {ham_dist_phase}')
+        self.canvas.show()
 
-    def update_lines(self):
-        popRange.updatepop()
-        self.current_census = core.census(popRange.currentpop)
-        census_frac = self.current_census/popRange.total
-        self.data = np.vstack((self.data, [popRange.time,*census_frac,
-                                           *popRange.hamming_dist()]))
-        self.im.set_data(popRange.currentpop)
-        self.ln[0].set_data(self.data[:,0], self.data[:,1])
-        self.ln[1].set_data(self.data[:,0], self.data[:,2])
-        self.ln[2].set_data(self.data[:,0], self.data[:,3])
-        self.ln[3].set_data(self.data[:,0], self.data[:,5])
-        self.axes[0].set_title( sir_title(popRange.time, *census_frac) )
-        self.axes[1].set_xlim(self.data[0,0], self.data[-1,0]+1)
-        self.axes[2].set_xlim(self.data[0,0], self.data[-1,0]+1)
+    def update(self, i):
+        currentpop, data, time, census_frac = self.updates_data()
+        self.im.set_data(currentpop)
+        self.ln[0].set_data(data[:,0], data[:,1])
+        self.ln[1].set_data(data[:,0], data[:,2])
+        self.ln[2].set_data(data[:,0], data[:,3])
+        self.ln[3].set_data(data[:,0], data[:,5])
+        self.axes[0].set_title( sir_title(time, *census_frac) )
+        self.axes[1].set_xlim(data[0,0], data[-1,0]+1)
+        self.axes[2].set_xlim(data[0,0], data[-1,0]+1)
 
-    def update(self,i):
-        if self.current_census[0]!=popRange.total:
-            self.update_lines()
 
-    def animate(self, ti, tf, delay):
+    def animate(self, ti, tf, delay, animation_data):
         from matplotlib.animation import FuncAnimation
-        popRange.jumptostep(ti)
         self.fig.tight_layout()
+        self.updates_data = animation_data
         line_ani = FuncAnimation(self.fig, self.update, (tf-ti-1),
                                  interval=delay*1000, repeat=False)
         self.canvas.draw()
         self.canvas.show()
-
-def animate(ti, tf, delay):
-    Population_visual().animate(ti, tf, delay)
