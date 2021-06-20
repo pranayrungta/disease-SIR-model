@@ -1,4 +1,3 @@
-#!/usr/bin/python3.6
 from . import plotter as pltr
 from .ui import UI
 import functools
@@ -29,6 +28,7 @@ class Application(UI):
         self.s0.valueChanged.connect(self.set_sus_changed)
         self.i0.valueChanged.connect(self.set_inf_changed)
         self.popsize.valueChanged.connect(self.disable_plot_buttons)
+
         self.generatebutton.clicked.connect(self.generatepop)
         self.longrange.toggled.connect(self.longrangecheck)
         self.plot_but.clicked.connect(pltr.plotinitialpop)
