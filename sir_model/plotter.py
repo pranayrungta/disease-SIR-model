@@ -5,50 +5,6 @@ from sir_model import core
 
 sir_title = lambda t,s,i,r: f'Time={t}      S={s:.2f}   I={i:.2f}   R={r:.2f}'
 
-
-class Model:
-    def __init__(self):
-        self.population = None
-        self.popRange = None
-        self.data = np.zeros(shape=(0,6))
-
-    def set_pop(self, singleInfected, size, fs):
-        if singleInfected:
-            self.population = core.singleinfectedpop(size, fs)
-        else: self.population = core.fracinfectedpop(size, fs)
-
-    def set_long_range(self, is_nbrs_4, p, f):
-        self.popRange = core.LongRangePop(self.population,is_nbrs_4,p,f)
-
-    def set_short_range(self, is_nbrs_4):
-        self.popRange = core.ShortRangePop(self.population,is_nbrs_4)
-
-    def time_series_data(self, ti, tf):
-        data = []
-        self.popRange.jumptostep(ti)
-        current_census = [None, None, None]
-        while self.popRange.time<tf and current_census[0]!=self.popRange.total:
-            self.popRange.updatepop()
-            current_census = core.census(self.popRange.currentpop)
-            data.append([self.popRange.time,*(current_census/self.popRange.total)])
-            perCom = (self.popRange.time-ti)/(tf-ti)*100
-            print(f'{perCom:.0f}% Done  ', end='\r')
-        print(f'{100:.0f}% Done  ', end='\r')
-        data=np.reshape(data, newshape=(len(data),4))
-        return data
-
-    def animation_data(self):
-        currentpop = self.popRange.currentpop
-        self.popRange.updatepop()
-        current_census = core.census(currentpop)
-        census_frac = current_census/self.popRange.total
-        self.data = np.vstack((self.data,
-           [self.popRange.time, *census_frac,
-            *self.popRange.hamming_dist() ]  ))
-        return currentpop, self.data, self.popRange.time, census_frac
-
-
-
 def pop_image(axes, pop):
     from sir_model.core import Ti,Tr
     from matplotlib.colors import ListedColormap, BoundaryNorm

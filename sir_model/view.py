@@ -23,7 +23,6 @@ def FormLay(label_Field_list):
     return formLayout
 
 
-
 class Initpop(QtWidgets.QWidget):
     newValueSelected = pyqtSignal()
     def __init__(self):
@@ -40,7 +39,7 @@ class Initpop(QtWidgets.QWidget):
         self.set_all_layouts()
         self.make_connections()
 
-    def read_parameters(self):
+    def get_values(self):
         return {'singleInfected' : self.singleinfected.isChecked(),
                 'popsize' : self.popsize.value(),
                 's0': self.s0.value()}
@@ -79,23 +78,23 @@ class Initpop(QtWidgets.QWidget):
         self.newValueSelected.emit()
 
     def set_all_layouts(self):
-        initPopPara_Layout = QtWidgets.QVBoxLayout()
-        initPopPara_Layout.addWidget(self.singleinfected)
         s0_label = QtWidgets.QLabel("So:")
         i0_label = QtWidgets.QLabel("Io:")
         r0_label = QtWidgets.QLabel("Ro:")
         size_label = QtWidgets.QLabel("Size:")
-        initPopPara_Layout.addLayout(FormLay([[s0_label,   self.s0],
-                                              [i0_label,   self.i0],
-                                              [r0_label,   self.r0],
-                                              [size_label, self.popsize]]))
-        initPopPara_Layout.addStretch()
-        initPopPara_Layout.addWidget(self.generatebutton)
-        initPopPara_Layout.addWidget(self.plot_but)
-        InitPop_grpBox = QtWidgets.QGroupBox("Initial Population")
-        InitPop_grpBox.setLayout(initPopPara_Layout)
-        layout = QtWidgets.QHBoxLayout()
-        layout.addWidget(InitPop_grpBox)
+        vLayout = QtWidgets.QVBoxLayout()
+        vLayout.addWidget(self.singleinfected)
+        vLayout.addLayout(FormLay([[s0_label,   self.s0],
+                                   [i0_label,   self.i0],
+                                   [r0_label,   self.r0],
+                                   [size_label, self.popsize]]))
+        vLayout.addStretch()
+        vLayout.addWidget(self.generatebutton)
+        vLayout.addWidget(self.plot_but)
+        grpBox = QtWidgets.QGroupBox("Initial Population")
+        grpBox.setLayout(vLayout)
+        layout = QtWidgets.QGridLayout()
+        layout.addWidget(grpBox)
         self.setLayout(layout)
 
 
@@ -135,21 +134,20 @@ class Neighbourhood(QtWidgets.QWidget):
                   self.freq_label, self.freqrewire]:
             i.setVisible(checked)
 
-
     def set_all_layouts(self):
-        nbrHd_vLayout = QtWidgets.QVBoxLayout()
-        nbrHd_vLayout.addWidget(self.nbr4)
-        nbrHd_vLayout.addWidget(self.nbr8)
-        nbrHd_vLayout.addWidget(self.longrange)
-        nbrHd_vLayout.addStretch()
-        nbrHd_vLayout.addLayout(FormLay([[self.prob_label,self.probrewire],
-                                         [self.freq_label,self.freqrewire]]))
-        NbrHd_grpBox = QtWidgets.QGroupBox("Neighbourhood  ")
-        NbrHd_grpBox.setLayout(nbrHd_vLayout)
-        layout = QtWidgets.QHBoxLayout()
-        layout.addWidget(NbrHd_grpBox)
-        self.setLayout(layout)
         self.longrangecheck(False)
+        vLayout = QtWidgets.QVBoxLayout()
+        vLayout.addWidget(self.nbr4)
+        vLayout.addWidget(self.nbr8)
+        vLayout.addWidget(self.longrange)
+        vLayout.addStretch()
+        vLayout.addLayout(FormLay([[self.prob_label,self.probrewire],
+                                         [self.freq_label,self.freqrewire]]))
+        grpBox = QtWidgets.QGroupBox("Neighbourhood  ")
+        grpBox.setLayout(vLayout)
+        layout = QtWidgets.QGridLayout()
+        layout.addWidget(grpBox)
+        self.setLayout(layout)
 
 
 class Animate(QtWidgets.QWidget):
@@ -168,28 +166,27 @@ class Animate(QtWidgets.QWidget):
                 self.delay_spBox.value() )
 
     def set_all_layouts(self):
-        self.delay_spBox.setValue(0.2)
         self.tstart.setValue(0)
         self.tend.setValue(50)
+        self.delay_spBox.setValue(0.2)
         st1_label = QtWidgets.QLabel("Start time")
         et2_label = QtWidgets.QLabel("End time")
         delay_label = QtWidgets.QLabel("Delay(secs)")
-        time_layout = FormLay([[st1_label,   self.tstart],
-                               [et2_label,   self.tend],
-                               [delay_label, self.delay_spBox]])
-        Animate_vLayout = QtWidgets.QVBoxLayout()
-        Animate_vLayout.addLayout(time_layout)
-        Animate_vLayout.addStretch()
-        Animate_vLayout.addWidget(self.animate_but)
-        Animate_vLayout.addWidget(self.pltSr_but)
-        Anim_grpBox = QtWidgets.QGroupBox("Animate")
-        Anim_grpBox.setLayout(Animate_vLayout)
-        layout = QtWidgets.QHBoxLayout()
-        layout.addWidget(Anim_grpBox)
+        vLayout = QtWidgets.QVBoxLayout()
+        vLayout.addLayout(FormLay([[st1_label,   self.tstart],
+                                   [et2_label,   self.tend],
+                                   [delay_label, self.delay_spBox]]) )
+        vLayout.addStretch()
+        vLayout.addWidget(self.animate_but)
+        vLayout.addWidget(self.pltSr_but)
+        grpBox = QtWidgets.QGroupBox("Animate")
+        grpBox.setLayout(vLayout)
+        layout = QtWidgets.QGridLayout()
+        layout.addWidget(grpBox)
         self.setLayout(layout)
 
 
-class UI(QtWidgets.QMainWindow):
+class Controls(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.initpop = Initpop()
@@ -220,6 +217,6 @@ class UI(QtWidgets.QMainWindow):
 if __name__ == '__main__':
     # import sys
     # app = QtWidgets.QApplication(sys.argv)
-    form = Neighbourhood()
+    form = Initpop()
     form.show()
     # sys.exit(app.exec_())
