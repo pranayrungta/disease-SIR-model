@@ -41,8 +41,6 @@ def census(population):
     return np.array([sus, inf, ref])
 
 
-
-
 class Population(object):
     def __init__(self, initpop, is_nbrs_4):
         self.initpop = initpop

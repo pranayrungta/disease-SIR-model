@@ -8,8 +8,7 @@ class Application:
         self.model = Model()
         self.ui = Controls()
         self.ui.initpop.generatebutton.clicked.connect(self.generatepop)
-        self.ui.initpop.plot_but.clicked.connect(lambda:
-                    pltr.plotinitialpop(self.model.population)  )
+        self.ui.initpop.plot_but.clicked.connect(self.plt_initpop)
         self.ui.anim.pltSr_but.clicked.connect(self.pltSr_butfunc)
         self.ui.anim.animate_but.clicked.connect(self.animate_butfunc)
         self.ui.disable_plot_buttons(disable=True)
@@ -18,6 +17,10 @@ class Application:
         p = self.ui.initpop.get_values()
         self.model.set_pop(p['singleInfected'], p['popsize'], p['s0'])
         self.ui.disable_plot_buttons(False)
+
+    def plt_initpop(self, _):
+        pop, census, Ti, Tr = self.model.init_pop()
+        pltr.plotinitialpop(pop, census, Ti, Tr)
 
     def pltSr_butfunc(self, _):
         # self.set_popRange()
@@ -32,8 +35,8 @@ class Application:
         p = self.ui.nbrhd.get_values()
         self.model.set_popRange(p)
         ti, tf, dt = self.ui.anim.get_values()
-        nbrs, pop, updater = self.model.get_anim_updater(ti)
-        anim = pltr.Population_visual(nbrs, pop)
+        nbrs, pop, Ti, Tr, updater = self.model.get_anim_updater(ti)
+        anim = pltr.Population_visual(nbrs, pop, Ti, Tr)
         anim.animate(ti, tf, dt, updater)
 
 def main():

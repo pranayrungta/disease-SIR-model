@@ -1,40 +1,40 @@
-from PyQt5 import QtWidgets
+import PyQt5.QtWidgets as qt
 from PyQt5.QtCore import pyqtSignal
 
 def DoubleSpinBox(minimum=0, maximum=1.0, singleStep=0.1):
-    box = QtWidgets.QDoubleSpinBox()
+    box = qt.QDoubleSpinBox()
     box.setMinimum(minimum)
     box.setMaximum(maximum)
     box.setSingleStep(singleStep)
     return box
 
 def SpinBox(maximum, singleStep, init_value=0):
-    box = QtWidgets.QSpinBox()
+    box = qt.QSpinBox()
     box.setMaximum(maximum)
     box.setSingleStep(singleStep)
     box.setProperty("value", init_value)
     return box
 
 def FormLay(label_Field_list):
-    formLayout = QtWidgets.QFormLayout()
+    formLayout = qt.QFormLayout()
     for i,(label,field) in enumerate(label_Field_list):
-        formLayout.setWidget(i, QtWidgets.QFormLayout.LabelRole, label)
-        formLayout.setWidget(i, QtWidgets.QFormLayout.FieldRole, field)
+        formLayout.setWidget(i, qt.QFormLayout.LabelRole, label)
+        formLayout.setWidget(i, qt.QFormLayout.FieldRole, field)
     return formLayout
 
 
-class Initpop(QtWidgets.QWidget):
+class Initpop(qt.QWidget):
     newValueSelected = pyqtSignal()
     def __init__(self):
         super().__init__()
 
-        self.singleinfected = QtWidgets.QCheckBox("Single Infected Individual")
+        self.singleinfected = qt.QCheckBox("Single Infected Individual")
         self.s0 = DoubleSpinBox()
         self.i0 = DoubleSpinBox()
         self.r0 = DoubleSpinBox()
         self.popsize = SpinBox(200, 10)
-        self.generatebutton = QtWidgets.QPushButton("Generate")
-        self.plot_but = QtWidgets.QPushButton("Plot")
+        self.generatebutton = qt.QPushButton("Generate")
+        self.plot_but = qt.QPushButton("Plot")
 
         self.set_all_layouts()
         self.make_connections()
@@ -78,11 +78,11 @@ class Initpop(QtWidgets.QWidget):
         self.newValueSelected.emit()
 
     def set_all_layouts(self):
-        s0_label = QtWidgets.QLabel("So:")
-        i0_label = QtWidgets.QLabel("Io:")
-        r0_label = QtWidgets.QLabel("Ro:")
-        size_label = QtWidgets.QLabel("Size:")
-        vLayout = QtWidgets.QVBoxLayout()
+        s0_label = qt.QLabel("So:")
+        i0_label = qt.QLabel("Io:")
+        r0_label = qt.QLabel("Ro:")
+        size_label = qt.QLabel("Size:")
+        vLayout = qt.QVBoxLayout()
         vLayout.addWidget(self.singleinfected)
         vLayout.addLayout(FormLay([[s0_label,   self.s0],
                                    [i0_label,   self.i0],
@@ -91,25 +91,25 @@ class Initpop(QtWidgets.QWidget):
         vLayout.addStretch()
         vLayout.addWidget(self.generatebutton)
         vLayout.addWidget(self.plot_but)
-        grpBox = QtWidgets.QGroupBox("Initial Population")
+        grpBox = qt.QGroupBox("Initial Population")
         grpBox.setLayout(vLayout)
-        layout = QtWidgets.QGridLayout()
+        layout = qt.QGridLayout()
         layout.addWidget(grpBox)
         self.setLayout(layout)
 
 
 
-class Neighbourhood(QtWidgets.QWidget):
+class Neighbourhood(qt.QWidget):
     def __init__(self):
         super().__init__()
-        self.nbr4 = QtWidgets.QRadioButton("von Neumann(4)")
+        self.nbr4 = qt.QRadioButton("von Neumann(4)")
         self.nbr4.setChecked(True)
-        self.nbr8 = QtWidgets.QRadioButton("Moore(8)")
-        self.longrange = QtWidgets.QCheckBox("Long Range Interactions")
-        self.prob_label = QtWidgets.QLabel("Probability:")
-        self.probrewire = QtWidgets.QLineEdit()
-        self.freq_label = QtWidgets.QLabel("Frequency:")
-        self.freqrewire = QtWidgets.QLineEdit()
+        self.nbr8 = qt.QRadioButton("Moore(8)")
+        self.longrange = qt.QCheckBox("Long Range Interactions")
+        self.prob_label = qt.QLabel("Probability:")
+        self.probrewire = qt.QLineEdit()
+        self.freq_label = qt.QLabel("Frequency:")
+        self.freqrewire = qt.QLineEdit()
         self.set_all_layouts()
         self.longrange.toggled.connect(self.longrangecheck)
 
@@ -136,28 +136,28 @@ class Neighbourhood(QtWidgets.QWidget):
 
     def set_all_layouts(self):
         self.longrangecheck(False)
-        vLayout = QtWidgets.QVBoxLayout()
+        vLayout = qt.QVBoxLayout()
         vLayout.addWidget(self.nbr4)
         vLayout.addWidget(self.nbr8)
         vLayout.addWidget(self.longrange)
         vLayout.addStretch()
         vLayout.addLayout(FormLay([[self.prob_label,self.probrewire],
                                          [self.freq_label,self.freqrewire]]))
-        grpBox = QtWidgets.QGroupBox("Neighbourhood  ")
+        grpBox = qt.QGroupBox("Neighbourhood  ")
         grpBox.setLayout(vLayout)
-        layout = QtWidgets.QGridLayout()
+        layout = qt.QGridLayout()
         layout.addWidget(grpBox)
         self.setLayout(layout)
 
 
-class Animate(QtWidgets.QWidget):
+class Animate(qt.QWidget):
     def __init__(self):
         super().__init__()
         self.tstart = SpinBox(10000,10)
         self.tend = SpinBox(100000,10)
         self.delay_spBox = DoubleSpinBox(0.05, 5.0, 0.5)
-        self.animate_but = QtWidgets.QPushButton("Animate!")
-        self.pltSr_but = QtWidgets.QPushButton("Plot Time Series")
+        self.animate_but = qt.QPushButton("Animate!")
+        self.pltSr_but = qt.QPushButton("Plot Time Series")
         self.set_all_layouts()
 
     def get_values(self):
@@ -169,24 +169,24 @@ class Animate(QtWidgets.QWidget):
         self.tstart.setValue(0)
         self.tend.setValue(50)
         self.delay_spBox.setValue(0.2)
-        st1_label = QtWidgets.QLabel("Start time")
-        et2_label = QtWidgets.QLabel("End time")
-        delay_label = QtWidgets.QLabel("Delay(secs)")
-        vLayout = QtWidgets.QVBoxLayout()
+        st1_label = qt.QLabel("Start time")
+        et2_label = qt.QLabel("End time")
+        delay_label = qt.QLabel("Delay(secs)")
+        vLayout = qt.QVBoxLayout()
         vLayout.addLayout(FormLay([[st1_label,   self.tstart],
                                    [et2_label,   self.tend],
                                    [delay_label, self.delay_spBox]]) )
         vLayout.addStretch()
         vLayout.addWidget(self.animate_but)
         vLayout.addWidget(self.pltSr_but)
-        grpBox = QtWidgets.QGroupBox("Animate")
+        grpBox = qt.QGroupBox("Animate")
         grpBox.setLayout(vLayout)
-        layout = QtWidgets.QGridLayout()
+        layout = qt.QGridLayout()
         layout.addWidget(grpBox)
         self.setLayout(layout)
 
 
-class Controls(QtWidgets.QMainWindow):
+class Controls(qt.QMainWindow):
     def __init__(self):
         super().__init__()
         self.initpop = Initpop()
@@ -202,13 +202,13 @@ class Controls(QtWidgets.QMainWindow):
 
     def set_all_layouts(self):
         self.setWindowTitle("S I R Model")
-        centralwidget = QtWidgets.QWidget(self)
+        centralwidget = qt.QWidget(self)
         self.setCentralWidget(centralwidget)
-        horizontalLayout = QtWidgets.QHBoxLayout(centralwidget)
+        horizontalLayout = qt.QHBoxLayout(centralwidget)
         horizontalLayout.addWidget(self.initpop)
         horizontalLayout.addWidget(self.nbrhd)
         horizontalLayout.addWidget(self.anim)
-        self.statusbar = QtWidgets.QStatusBar(self)
+        self.statusbar = qt.QStatusBar(self)
         self.setStatusBar(self.statusbar)
         self.statusbar.showMessage('Ready')
 
@@ -216,7 +216,7 @@ class Controls(QtWidgets.QMainWindow):
 
 if __name__ == '__main__':
     # import sys
-    # app = QtWidgets.QApplication(sys.argv)
+    # app = qt.QApplication(sys.argv)
     form = Initpop()
     form.show()
     # sys.exit(app.exec_())

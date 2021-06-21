@@ -1,6 +1,7 @@
 import numpy as np
 from sir_model.core import (singleinfectedpop, fracinfectedpop,
-                            LongRangePop, ShortRangePop, census)
+                            LongRangePop, ShortRangePop,
+                            census, Ti, Tr)
 
 class Model:
     def __init__(self):
@@ -20,8 +21,9 @@ class Model:
         else:
             self.popRange = ShortRangePop(self.population, p['nbr4'])
 
-    # def set_short_range(self, is_nbrs_4):
-    #     self.popRange = ShortRangePop(self.population,is_nbrs_4)
+    def init_pop(self):
+        current_census = census(self.population)
+        return self.population, current_census, Ti, Tr
 
     def time_series_data(self, ti, tf):
         data = []
@@ -52,7 +54,7 @@ class Model:
         self.popRange.jumptostep(ti)
         self.data = np.zeros(shape=(0,6))
         return (len(self.popRange.nbrs), self.popRange.currentpop,
-                self.animation_data)
+                Ti, Tr, self.animation_data)
 
 if __name__=='__main__':
     m = Model()

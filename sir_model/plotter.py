@@ -1,12 +1,11 @@
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 import numpy as np
-from sir_model import core
 
-sir_title = lambda t,s,i,r: f'Time={t}      S={s:.2f}   I={i:.2f}   R={r:.2f}'
+def sir_title(t,s,i,r):
+    return f'Time={t}      S={s:.2f}   I={i:.2f}   R={r:.2f}'
 
-def pop_image(axes, pop):
-    from sir_model.core import Ti,Tr
+def pop_image(axes, pop, Ti, Tr):
     from matplotlib.colors import ListedColormap, BoundaryNorm
     cmap = ListedColormap(['g','r','k'])
     norm = BoundaryNorm(  [ 0,  1,  Ti+1,  Ti+Tr+1], cmap.N, clip=True)
@@ -17,17 +16,16 @@ def pop_image(axes, pop):
     axes.set_xlim(0,cols-1); axes.set_ylim(0,rows-1)
     return im
 
-def plotinitialpop(population):
+def plotinitialpop(population, census, Ti, Tr):
     fig = Figure(figsize=[6, 6])
     canvas = FigureCanvasQTAgg(fig)
     canvas.setWindowTitle('Initial Population')
     axes = fig.add_subplot(111)
     rows,cols = population.shape
     total = (rows-2)*(cols-2)
-    axes.set_title( sir_title(0,*(core.census(population)/total)) )
-    pop_image(axes, population)
+    axes.set_title( sir_title(0,*(census/total)) )
+    pop_image(axes, population, Ti, Tr)
     canvas.show()
-
 
 def timeSeriesLines(axes, data):
     l, = axes.plot(data[:,0], data[:,1], 'g-', lw=2, label='Susceptible')
@@ -46,8 +44,7 @@ def plot_time_series(data):
     canvas.show()
 
 class Population_visual:
-    def __init__(self, nbrs, currentpop):
-        # super().__init__()
+    def __init__(self, nbrs, currentpop, Ti, Tr):
         self.fig = Figure(figsize=[12, 6])
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.canvas.setWindowTitle('Time evolution')
@@ -56,12 +53,12 @@ class Population_visual:
         self.axes.append( self.fig.add_subplot(222) )
         self.axes.append( self.fig.add_subplot(224) )
 
-        self.im = pop_image(self.axes[0], currentpop)
+        self.im = pop_image(self.axes[0], currentpop, Ti, Tr)
         self.ln = timeSeriesLines(self.axes[1], np.zeros(shape=(0,6)))
         self.ln.append( *self.axes[2].plot([],[],lw=2) )
         self.axes[1].set_ylim(0.0, 1.0)
-        tau_i = r'$\tau_{i}$=%i'%core.Ti
-        tau_r = r'$\tau_{r}$=%i'%core.Tr
+        tau_i = r'$\tau_{i}$=%i'%Ti
+        tau_r = r'$\tau_{r}$=%i'%Tr
         nbrs = f'nbrs={nbrs}'
         self.axes[1].set_title(f'Time Series\t{tau_i}\t{tau_r}\t{nbrs}')
         self.axes[1].legend(loc='upper right')
