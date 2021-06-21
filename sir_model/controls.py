@@ -36,25 +36,25 @@ class Initpop(qt.QWidget):
         self.generatebutton = qt.QPushButton("Generate")
         self.plot_but = qt.QPushButton("Plot")
 
-        self.set_all_layouts()
-        self.make_connections()
+        self._set_all_layouts()
+        self._make_connections()
 
     def get_values(self):
         return {'singleInfected' : self.singleinfected.isChecked(),
                 'popsize' : self.popsize.value(),
                 's0': self.s0.value()}
 
-    def make_connections(self):
+    def _make_connections(self):
         self.r0.setDisabled(True)
         self.popsize.setValue(40)
         self.plot_but.setDisabled(True)
-        self.singleinfected.toggled.connect(self.value_changed)
-        self.s0.valueChanged.connect(self.value_changed)
-        self.i0.valueChanged.connect(self.value_changed)
+        self.singleinfected.toggled.connect(self._value_changed)
+        self.s0.valueChanged.connect(self._value_changed)
+        self.i0.valueChanged.connect(self._value_changed)
         self.popsize.valueChanged.connect(self.newValueSelected.emit)
         self.s0.setValue(0.45)
 
-    def value_changed(self):
+    def _value_changed(self):
         for i in [self.s0, self.i0, self.r0]:
             i.blockSignals(True)
         if self.singleinfected.isChecked():
@@ -77,7 +77,7 @@ class Initpop(qt.QWidget):
             i.blockSignals(False)
         self.newValueSelected.emit()
 
-    def set_all_layouts(self):
+    def _set_all_layouts(self):
         s0_label = qt.QLabel("So:")
         i0_label = qt.QLabel("Io:")
         r0_label = qt.QLabel("Ro:")
@@ -110,8 +110,8 @@ class Neighbourhood(qt.QWidget):
         self.probrewire = qt.QLineEdit()
         self.freq_label = qt.QLabel("Frequency:")
         self.freqrewire = qt.QLineEdit()
-        self.set_all_layouts()
-        self.longrange.toggled.connect(self.longrangecheck)
+        self._set_all_layouts()
+        self.longrange.toggled.connect(self._longrangecheck)
 
     def get_values(self):
         lr =  self.longrange.isChecked()
@@ -129,13 +129,13 @@ class Neighbourhood(qt.QWidget):
             vals.update({'p':p, 'f':f})
         return vals
 
-    def longrangecheck(self, checked):
+    def _longrangecheck(self, checked):
         for i in [self.prob_label, self.probrewire,
                   self.freq_label, self.freqrewire]:
             i.setVisible(checked)
 
-    def set_all_layouts(self):
-        self.longrangecheck(False)
+    def _set_all_layouts(self):
+        self._longrangecheck(False)
         vLayout = qt.QVBoxLayout()
         vLayout.addWidget(self.nbr4)
         vLayout.addWidget(self.nbr8)
@@ -158,14 +158,14 @@ class Animate(qt.QWidget):
         self.delay_spBox = DoubleSpinBox(0.05, 5.0, 0.5)
         self.animate_but = qt.QPushButton("Animate!")
         self.pltSr_but = qt.QPushButton("Plot Time Series")
-        self.set_all_layouts()
+        self._set_all_layouts()
 
     def get_values(self):
         return (int(self.tstart.value()),
                 int(self.tend.value()),
                 self.delay_spBox.value() )
 
-    def set_all_layouts(self):
+    def _set_all_layouts(self):
         self.tstart.setValue(0)
         self.tend.setValue(50)
         self.delay_spBox.setValue(0.2)
@@ -192,15 +192,16 @@ class Controls(qt.QMainWindow):
         self.initpop = Initpop()
         self.nbrhd = Neighbourhood()
         self.anim = Animate()
-        self.set_all_layouts()
+        self._set_all_layouts()
         self.initpop.newValueSelected.connect(self.disable_plot_buttons)
+        self.disable_plot_buttons()
 
     def disable_plot_buttons(self, disable=True):
         self.anim.animate_but.setDisabled(disable)
         self.anim.pltSr_but.setDisabled(disable)
         self.initpop.plot_but.setDisabled(disable)
 
-    def set_all_layouts(self):
+    def _set_all_layouts(self):
         self.setWindowTitle("S I R Model")
         centralwidget = qt.QWidget(self)
         self.setCentralWidget(centralwidget)

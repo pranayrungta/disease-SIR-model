@@ -1,5 +1,5 @@
-import sir_model.plotter as pltr
-from sir_model.view import Controls
+import sir_model.plotter as plt
+from sir_model.controls import Controls
 from sir_model.model import Model
 
 class Application:
@@ -11,7 +11,6 @@ class Application:
         self.ui.initpop.plot_but.clicked.connect(self.plt_initpop)
         self.ui.anim.pltSr_but.clicked.connect(self.pltSr_butfunc)
         self.ui.anim.animate_but.clicked.connect(self.animate_butfunc)
-        self.ui.disable_plot_buttons(disable=True)
 
     def generatepop(self, _):
         p = self.ui.initpop.get_values()
@@ -20,23 +19,21 @@ class Application:
 
     def plt_initpop(self, _):
         pop, census, Ti, Tr = self.model.init_pop()
-        pltr.plotinitialpop(pop, census, Ti, Tr)
+        plt.plotinitialpop(pop, census, Ti, Tr)
 
     def pltSr_butfunc(self, _):
-        # self.set_popRange()
         p = self.ui.nbrhd.get_values()
         self.model.set_popRange(p)
         ti, tf, _ = self.ui.anim.get_values()
         data = self.model.time_series_data(ti,tf)
-        pltr.plot_time_series(data)
+        plt.plot_time_series(data)
 
     def animate_butfunc(self, _):
-        # self.set_popRange()
         p = self.ui.nbrhd.get_values()
         self.model.set_popRange(p)
         ti, tf, dt = self.ui.anim.get_values()
         nbrs, pop, Ti, Tr, updater = self.model.get_anim_updater(ti)
-        anim = pltr.Population_visual(nbrs, pop, Ti, Tr)
+        anim = plt.Population_visual(nbrs, pop, Ti, Tr)
         anim.animate(ti, tf, dt, updater)
 
 def main():

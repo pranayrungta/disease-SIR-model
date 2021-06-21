@@ -29,17 +29,14 @@ class Model:
         data = []
         self.popRange.jumptostep(ti)
         current_census = [None, None, None]
-        while self.popRange.time<tf and current_census[0]!=self.popRange.total:
+        while self.popRange.time<tf:
             self.popRange.updatepop()
             current_census = census(self.popRange.currentpop)
             data.append([self.popRange.time,*(current_census/self.popRange.total)])
-            perCom = (self.popRange.time-ti)/(tf-ti)*100
-            print(f'{perCom:.0f}% Done  ', end='\r')
-        print(f'{100:.0f}% Done  ', end='\r')
         data=np.reshape(data, newshape=(len(data),4))
         return data
 
-    def animation_data(self):
+    def anim_updates(self):
         currentpop = self.popRange.currentpop
         self.popRange.updatepop()
         current_census = census(currentpop)
@@ -54,10 +51,9 @@ class Model:
         self.popRange.jumptostep(ti)
         self.data = np.zeros(shape=(0,6))
         return (len(self.popRange.nbrs), self.popRange.currentpop,
-                Ti, Tr, self.animation_data)
+                Ti, Tr, self.anim_updates)
 
 if __name__=='__main__':
     m = Model()
-    nbrs, pop, updater = m.get_anim_updater()
-
-
+    nbrs, pop, Ti, Tr, updater = m.get_anim_updater()
+    pop, ts, t, census_frac = updater()

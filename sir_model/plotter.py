@@ -78,7 +78,6 @@ class Population_visual:
         self.axes[1].set_xlim(data[0,0], data[-1,0]+1)
         self.axes[2].set_xlim(data[0,0], data[-1,0]+1)
 
-
     def animate(self, ti, tf, delay, animation_data):
         from matplotlib.animation import FuncAnimation
         self.fig.tight_layout()
