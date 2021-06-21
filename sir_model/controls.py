@@ -213,11 +213,11 @@ class Controls(qt.QMainWindow):
         self.setStatusBar(self.statusbar)
         self.statusbar.showMessage('Ready')
 
+    def status(self, msg='Ready'):
+        self.statusbar.showMessage(msg)
+        self.repaint()
 
 
 if __name__ == '__main__':
-    # import sys
-    # app = qt.QApplication(sys.argv)
     form = Initpop()
     form.show()
-    # sys.exit(app.exec_())

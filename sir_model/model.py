@@ -28,11 +28,11 @@ class Model:
     def time_series_data(self, ti, tf):
         data = []
         self.popRange.jumptostep(ti)
-        current_census = [None, None, None]
         while self.popRange.time<tf:
             self.popRange.updatepop()
             current_census = census(self.popRange.currentpop)
-            data.append([self.popRange.time,*(current_census/self.popRange.total)])
+            data.append([self.popRange.time,*(current_census/
+                                              self.popRange.total)])
         data=np.reshape(data, newshape=(len(data),4))
         return data
 

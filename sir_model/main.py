@@ -2,6 +2,7 @@ import sir_model.plotter as plt
 from sir_model.controls import Controls
 from sir_model.model import Model
 
+
 class Application:
     def __init__(self):
         super().__init__()
@@ -13,28 +14,36 @@ class Application:
         self.ui.anim.animate_but.clicked.connect(self.animate_butfunc)
 
     def generatepop(self, _):
+        self.ui.status('Working...')
         p = self.ui.initpop.get_values()
         self.model.set_pop(p['singleInfected'], p['popsize'], p['s0'])
         self.ui.disable_plot_buttons(False)
+        self.ui.status('Ready')
 
     def plt_initpop(self, _):
+        self.ui.status('Working...')
         pop, census, Ti, Tr = self.model.init_pop()
         plt.plotinitialpop(pop, census, Ti, Tr)
+        self.ui.status('Ready')
 
     def pltSr_butfunc(self, _):
+        self.ui.status('Working...')
         p = self.ui.nbrhd.get_values()
         self.model.set_popRange(p)
         ti, tf, _ = self.ui.anim.get_values()
         data = self.model.time_series_data(ti,tf)
         plt.plot_time_series(data)
+        self.ui.status('Ready')
 
     def animate_butfunc(self, _):
+        self.ui.status('Working...')
         p = self.ui.nbrhd.get_values()
         self.model.set_popRange(p)
         ti, tf, dt = self.ui.anim.get_values()
         nbrs, pop, Ti, Tr, updater = self.model.get_anim_updater(ti)
         anim = plt.Population_visual(nbrs, pop, Ti, Tr)
         anim.animate(ti, tf, dt, updater)
+        self.ui.status('Ready')
 
 def main():
     import sys
@@ -48,4 +57,3 @@ if __name__ == '__main__':
  	# main()
     form = Application()
     form.ui.show()
-    pass
