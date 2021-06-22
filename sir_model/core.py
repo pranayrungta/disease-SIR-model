@@ -38,7 +38,10 @@ def census(population):
     sus = (mat==0).sum()
     inf = ((0<mat) & (mat<=Ti)).sum()
     ref = (mat>Ti).sum()
-    return np.array([sus, inf, ref])
+    rows,cols = population.shape
+    total = (rows-2)*(cols-2)
+    frac = np.array([sus, inf, ref])/total
+    return frac
 
 
 class Population(object):

@@ -21,9 +21,7 @@ def plotinitialpop(population, census, Ti, Tr):
     canvas = FigureCanvasQTAgg(fig)
     canvas.setWindowTitle('Initial Population')
     axes = fig.add_subplot(111)
-    rows,cols = population.shape
-    total = (rows-2)*(cols-2)
-    axes.set_title( sir_title(0,*(census/total)) )
+    axes.set_title( sir_title(0,*census) )
     pop_image(axes, population, Ti, Tr)
     canvas.show()
 
@@ -44,7 +42,7 @@ def plot_time_series(data):
     canvas.show()
 
 class Population_visual:
-    def __init__(self, nbrs, currentpop, Ti, Tr):
+    def __init__(self, nbrs, pop, Ti, Tr):
         self.fig = Figure(figsize=[12, 6])
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.canvas.setWindowTitle('Time evolution')
@@ -52,31 +50,34 @@ class Population_visual:
         self.axes.append( self.fig.add_subplot(121) )
         self.axes.append( self.fig.add_subplot(222) )
         self.axes.append( self.fig.add_subplot(224) )
-
-        self.im = pop_image(self.axes[0], currentpop, Ti, Tr)
+        self.im = pop_image(self.axes[0], pop, Ti, Tr)
         self.ln = timeSeriesLines(self.axes[1], np.zeros(shape=(0,6)))
         self.ln.append( *self.axes[2].plot([],[],lw=2) )
         self.axes[1].set_ylim(0.0, 1.0)
+        self.axes[1].legend(loc='upper right')
+        self.axes[2].set_ylim(-1, 3)
+        self.canvas.show()
+        self.title(Ti,Tr,nbrs)
+
+    def title(self, Ti, Tr, nbrs):
         tau_i = r'$\tau_{i}$=%i'%Ti
         tau_r = r'$\tau_{r}$=%i'%Tr
         nbrs = f'nbrs={nbrs}'
         self.axes[1].set_title(f'Time Series\t{tau_i}\t{tau_r}\t{nbrs}')
-        self.axes[1].legend(loc='upper right')
-        self.axes[2].set_ylim(-1, 3)
         ham_dist_phase = r'|$\frac{1}{N}\Sigma e^{i\phi}$|'
         self.axes[2].set_title(f'Order Parameter = {ham_dist_phase}')
-        self.canvas.show()
 
     def update(self, i):
-        currentpop, data, time, census_frac = self.updates_data()
-        self.im.set_data(currentpop)
+        pop, data = self.updates_data()
+        self.im.set_data(pop)
         self.ln[0].set_data(data[:,0], data[:,1])
         self.ln[1].set_data(data[:,0], data[:,2])
         self.ln[2].set_data(data[:,0], data[:,3])
-        self.ln[3].set_data(data[:,0], data[:,5])
-        self.axes[0].set_title( sir_title(time, *census_frac) )
-        self.axes[1].set_xlim(data[0,0], data[-1,0]+1)
-        self.axes[2].set_xlim(data[0,0], data[-1,0]+1)
+        self.ln[3].set_data(data[:,0], data[:,4])
+        t0, (t, fs, fi, fr, _) = data[0,0], data[-1]
+        self.axes[0].set_title( sir_title(t, fs, fi, fr) )
+        self.axes[1].set_xlim(t0, t+1)
+        self.axes[2].set_xlim(t0, t+1)
 
     def animate(self, ti, tf, delay, animation_data):
         from matplotlib.animation import FuncAnimation

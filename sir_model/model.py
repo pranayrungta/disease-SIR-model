@@ -7,7 +7,7 @@ class Model:
     def __init__(self):
         self.population = singleinfectedpop(5, 0.5)
         self.popRange = ShortRangePop(self.population, True)
-        self.data = np.zeros(shape=(0,6))
+        self.data = np.zeros(shape=(0,5))
 
     def set_pop(self, singleInfected, size, fs):
         if singleInfected:
@@ -30,30 +30,28 @@ class Model:
         self.popRange.jumptostep(ti)
         while self.popRange.time<tf:
             self.popRange.updatepop()
-            current_census = census(self.popRange.currentpop)
-            data.append([self.popRange.time,*(current_census/
-                                              self.popRange.total)])
-        data=np.reshape(data, newshape=(len(data),4))
+            fs, fi, fr = census(self.popRange.currentpop)
+            data.append( [self.popRange.time, fs, fi, fr] )
+        data = np.array(data)
         return data
 
     def anim_updates(self):
-        currentpop = self.popRange.currentpop
         self.popRange.updatepop()
-        current_census = census(currentpop)
-        census_frac = current_census/self.popRange.total
-        self.data = np.vstack((self.data,
-           [self.popRange.time, *census_frac,
-            *self.popRange.hamming_dist() ]  ))
-        return currentpop, self.data, self.popRange.time, census_frac
+        currentpop = self.popRange.currentpop
+        t = self.popRange.time
+        fs,fi,fr = census(currentpop)
+        hdist, phase = self.popRange.hamming_dist()
+        self.data = np.vstack((self.data, [t, fs,fi,fr, phase]))
+        return currentpop, self.data
 
     def get_anim_updater(self, ti=0):
         import numpy as np
         self.popRange.jumptostep(ti)
-        self.data = np.zeros(shape=(0,6))
+        self.data = np.zeros(shape=(0,5))
         return (len(self.popRange.nbrs), self.popRange.currentpop,
                 Ti, Tr, self.anim_updates)
 
 if __name__=='__main__':
     m = Model()
     nbrs, pop, Ti, Tr, updater = m.get_anim_updater()
-    pop, ts, t, census_frac = updater()
+    pop, data = updater()
