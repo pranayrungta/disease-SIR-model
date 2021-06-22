@@ -47,10 +47,10 @@ def census(population):
 class Population(object):
     def __init__(self, initpop, is_nbrs_4):
         self.initpop = initpop
-        self.currentpop = np.copy(initpop)
-        self.tpop = np.copy(initpop)
+        self.currentpop = initpop.copy()
+        self.tpop = initpop.copy()
         self.nbrs = self.get_nbr_list(is_nbrs_4)
-        rows,cols = initpop.shape
+        rows, cols = initpop.shape
         self.total = (rows-2)*(cols-2)
         self.time = 0
 
@@ -71,7 +71,7 @@ class Population(object):
 
 
     def jumptostep(self, t):
-        self.currentpop = np.copy(self.initpop)
+        self.currentpop = self.initpop.copy()
         self.time = 0
         for i in range(t):
             self.updatepop()

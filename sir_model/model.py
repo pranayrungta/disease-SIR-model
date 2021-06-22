@@ -26,8 +26,8 @@ class Model:
         return self.population, current_census, Ti, Tr
 
     def time_series_data(self, ti, tf):
-        data = []
         self.popRange.jumptostep(ti)
+        data = []
         while self.popRange.time<tf:
             self.popRange.updatepop()
             fs, fi, fr = census(self.popRange.currentpop)
@@ -38,10 +38,9 @@ class Model:
     def anim_updates(self):
         self.popRange.updatepop()
         currentpop = self.popRange.currentpop
-        t = self.popRange.time
-        fs,fi,fr = census(currentpop)
+        t, (fs, fi, fr) = self.popRange.time, census(currentpop)
         hdist, phase = self.popRange.hamming_dist()
-        self.data = np.vstack((self.data, [t, fs,fi,fr, phase]))
+        self.data = np.vstack((self.data, [t, fs, fi, fr, phase]))
         return currentpop, self.data
 
     def get_anim_updater(self, ti=0):
