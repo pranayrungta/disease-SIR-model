@@ -69,7 +69,6 @@ class Population(object):
         hammdist = (self.currentpop - self.initpop).sum()/self.total
         return hammdist, absolute(phase)
 
-
     def jumptostep(self, t):
         self.currentpop = self.initpop.copy()
         self.time = 0
@@ -96,8 +95,7 @@ class Population(object):
             else: self.tpop[i,j] = 0
         self.currentpop, self.tpop = self.tpop, self.currentpop
         self.time += 1
-        fs, fi, fr = census(self.currentpop)
-        return self.currentpop, self.time, fs, fi, fr
+        return self.time, self.currentpop
 
 class ShortRangePop(Population):
     def __init__(self, initpop, nbrs=4):

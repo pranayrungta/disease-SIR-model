@@ -29,13 +29,15 @@ class Model:
         self.popRange.jumptostep(ti)
         data = []
         while self.popRange.time<tf:
-            pop, t, fs, fi, fr = self.popRange.updatepop()
+            t, pop = self.popRange.updatepop()
+            fs, fi, fr = census(pop)
             data.append( [t, fs, fi, fr] )
         data = np.array(data)
         return data
 
     def anim_updates(self):
-        pop, t, fs, fi, fr = self.popRange.updatepop()
+        t, pop = self.popRange.updatepop()
+        fs, fi, fr = census(pop)
         hdist, phase = self.popRange.hamming_dist()
         self.data = np.vstack((self.data, [t, fs, fi, fr, phase]))
         return pop, self.data
