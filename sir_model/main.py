@@ -23,7 +23,7 @@ class Application:
     def plt_initpop(self, _):
         self.ui.status('Working...')
         pop, census, Ti, Tr = self.model.init_pop()
-        plt.plotinitialpop(pop, census, Ti, Tr)
+        self.pdip = plt.plotinitialpop(pop, census, Ti, Tr)
         self.ui.status('Ready')
 
     def pltSr_butfunc(self, _):
@@ -32,7 +32,7 @@ class Application:
         self.model.set_popRange(p)
         ti, tf, _ = self.ui.anim.get_values()
         data = self.model.time_series_data(ti,tf)
-        plt.plot_time_series(data)
+        self.pdts = plt.plot_time_series(data)
         self.ui.status('Ready')
 
     def animate_butfunc(self, _):

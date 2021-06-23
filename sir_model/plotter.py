@@ -1,6 +1,22 @@
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg,
+                                                NavigationToolbar2QT)
 from matplotlib.figure import Figure
+from PyQt5 import QtWidgets
 import numpy as np
+
+class PlotDialog(QtWidgets.QDialog):
+    def __init__(self, width=5, height=4, title='Plot'):
+        super().__init__()
+        self.fig = Figure(figsize=(width, height))
+        self.canvas = FigureCanvasQTAgg(self.fig)
+        self.toolbar = NavigationToolbar2QT(self.canvas, self)
+        self.axes = self.fig.add_subplot(111)
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.canvas)
+        layout.addWidget(self.toolbar)
+        self.setLayout(layout)
+        self.setWindowTitle(title)
+        self.resize(int(width*100), int(height*100+30))
 
 def sir_title(t,s,i,r):
     return f'Time={t}      S={s:.2f}   I={i:.2f}   R={r:.2f}'
@@ -17,13 +33,13 @@ def pop_image(axes, pop, Ti, Tr):
     return im
 
 def plotinitialpop(population, census, Ti, Tr):
-    fig = Figure(figsize=[6, 6])
-    canvas = FigureCanvasQTAgg(fig)
-    canvas.setWindowTitle('Initial Population')
-    axes = fig.add_subplot(111)
-    axes.set_title( sir_title(0,*census) )
-    pop_image(axes, population, Ti, Tr)
-    canvas.show()
+    pdg = PlotDialog(6.5,6.5,'Initial Population')
+    pdg.axes.set_title( sir_title(0,*census) )
+    pop_image(pdg.axes, population, Ti, Tr)
+    pdg.fig.tight_layout()
+    pdg.canvas.draw()
+    pdg.show()
+    return pdg
 
 def timeSeriesLines(axes, data):
     l, = axes.plot(data[:,0], data[:,1], 'g-', lw=2, label='Susceptible')
@@ -32,14 +48,14 @@ def timeSeriesLines(axes, data):
     return [ l, m, n ]
 
 def plot_time_series(data):
-    fig = Figure()
-    canvas = FigureCanvasQTAgg(fig)
-    canvas.setWindowTitle('Time series')
-    axes = fig.add_subplot(111)
-    timeSeriesLines(axes, data)
-    axes.set_title( sir_title(*data[-1,:]) )
-    axes.legend()
-    canvas.show()
+    pdg = PlotDialog(6.5, 5, 'Time series')
+    timeSeriesLines(pdg.axes, data)
+    pdg.axes.set_title( sir_title(*data[-1,:]) )
+    pdg.axes.legend()
+    pdg.fig.tight_layout()
+    pdg.canvas.draw()
+    pdg.show()
+    return pdg
 
 class Population_visual:
     def __init__(self, nbrs, pop, Ti, Tr):
