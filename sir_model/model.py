@@ -29,19 +29,16 @@ class Model:
         self.popRange.jumptostep(ti)
         data = []
         while self.popRange.time<tf:
-            self.popRange.updatepop()
-            fs, fi, fr = census(self.popRange.currentpop)
-            data.append( [self.popRange.time, fs, fi, fr] )
+            pop, t, fs, fi, fr = self.popRange.updatepop()
+            data.append( [t, fs, fi, fr] )
         data = np.array(data)
         return data
 
     def anim_updates(self):
-        self.popRange.updatepop()
-        currentpop = self.popRange.currentpop
-        t, (fs, fi, fr) = self.popRange.time, census(currentpop)
+        pop, t, fs, fi, fr = self.popRange.updatepop()
         hdist, phase = self.popRange.hamming_dist()
         self.data = np.vstack((self.data, [t, fs, fi, fr, phase]))
-        return currentpop, self.data
+        return pop, self.data
 
     def get_anim_updater(self, ti=0):
         import numpy as np

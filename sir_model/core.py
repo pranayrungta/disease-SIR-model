@@ -96,13 +96,16 @@ class Population(object):
             else: self.tpop[i,j] = 0
         self.currentpop, self.tpop = self.tpop, self.currentpop
         self.time += 1
+        fs, fi, fr = census(self.currentpop)
+        return self.currentpop, self.time, fs, fi, fr
 
 class ShortRangePop(Population):
     def __init__(self, initpop, nbrs=4):
         super().__init__(initpop, nbrs)
 
     def susUpdate(self,i,j):
-        if any(0<self.currentpop[i+m,j+n]<=Ti for [m,n] in self.nbrs):
+        if any(0<self.currentpop[i+m,j+n]<=Ti
+               for [m,n] in self.nbrs):
             self.tpop[i,j] += 1
 
     def infCond(self,a_ij):
