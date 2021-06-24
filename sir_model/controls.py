@@ -1,6 +1,13 @@
 import PyQt5.QtWidgets as qt
 from PyQt5.QtCore import pyqtSignal
 
+def set_icon(win):
+    from pathlib import Path
+    from PyQt5.QtGui import QIcon
+    icon = str(Path(__file__).parent/"icon.png")
+    win.setWindowIcon(QIcon(icon))
+
+
 def DoubleSpinBox(minimum=0, maximum=1.0, singleStep=0.1):
     box = qt.QDoubleSpinBox()
     box.setMinimum(minimum)
@@ -203,6 +210,7 @@ class Controls(qt.QMainWindow):
 
     def _set_all_layouts(self):
         self.setWindowTitle("S I R Model")
+        set_icon(self)
         centralwidget = qt.QWidget(self)
         self.setCentralWidget(centralwidget)
         horizontalLayout = qt.QHBoxLayout(centralwidget)
@@ -219,5 +227,5 @@ class Controls(qt.QMainWindow):
 
 
 if __name__ == '__main__':
-    form = Initpop()
+    form = Controls()
     form.show()

@@ -29,8 +29,8 @@ class Application:
     def pltSr_butfunc(self, _):
         self.ui.status('Working...')
         p = self.ui.nbrhd.get_values()
-        self.model.set_popRange(p)
         ti, tf, _ = self.ui.anim.get_values()
+        self.model.set_popRange(p)
         data = self.model.time_series_data(ti,tf)
         self.pdts = plt.plot_time_series(data)
         self.ui.status('Ready')
@@ -38,8 +38,8 @@ class Application:
     def animate_butfunc(self, _):
         self.ui.status('Working...')
         p = self.ui.nbrhd.get_values()
-        self.model.set_popRange(p)
         ti, tf, dt = self.ui.anim.get_values()
+        self.model.set_popRange(p)
         nbrs, pop, Ti, Tr, updater = self.model.get_anim_updater(ti)
         anim = plt.Population_visual(nbrs, pop, Ti, Tr)
         anim.animate(ti, tf, dt, updater)
