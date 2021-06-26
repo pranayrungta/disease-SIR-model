@@ -1,24 +1,24 @@
 from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg,
                                                 NavigationToolbar2QT)
 from matplotlib.figure import Figure
-from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QDialog,  QVBoxLayout
 import numpy as np
 
-class PlotDialog(QtWidgets.QDialog):
+class PlotDialog(QDialog):
     def __init__(self, width=5, height=4, title='Plot'):
         super().__init__()
         self.fig = Figure(figsize=(width, height))
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
         self.axes = self.fig.add_subplot(111)
-        layout = QtWidgets.QVBoxLayout()
+        layout = QVBoxLayout()
         layout.addWidget(self.canvas)
         layout.addWidget(self.toolbar)
         self.setLayout(layout)
         self.setWindowTitle(title)
         self.resize(int(width*100), int(height*100+30))
 
-def pop_image(axes, pop, Ti, Tr):
+def _pop_image(axes, pop, Ti, Tr):
     from matplotlib.colors import ListedColormap, BoundaryNorm
     cmap = ListedColormap(['g','r','k'])
     norm = BoundaryNorm(  [ 0,  1,  Ti+1,  Ti+Tr+1], cmap.N, clip=True)
@@ -36,25 +36,25 @@ def plotinitialpop(population, census, Ti, Tr):
     s, i, r = census
     title = f'{tau_i}\t{tau_r}\t S={s:.2f} \t I={i:.2f} \t R={r:.2f}'
     pdg.axes.set_title(title)
-    pop_image(pdg.axes, population, Ti, Tr)
+    _pop_image(pdg.axes, population, Ti, Tr)
     pdg.fig.tight_layout()
     pdg.canvas.draw()
     pdg.show()
     return pdg
 
-def timeSeriesLines(axes, data):
+def _timeSeriesLines(axes, data):
     l, = axes.plot(data[:,0], data[:,1], 'g-', lw=2, label='Susceptible')
     m, = axes.plot(data[:,0], data[:,2], 'r-', lw=2, label='Infected'   )
     n, = axes.plot(data[:,0], data[:,3], 'k-', lw=2, label='Refractory' )
     return [ l, m, n ]
 
-def sir_title(t,s,i,r):
+def _sirTitle(t,s,i,r):
     return f'Time={t}      S={s:.2f}   I={i:.2f}   R={r:.2f}'
 
 def plot_time_series(data):
     pdg = PlotDialog(6.5, 5, 'Time series')
-    timeSeriesLines(pdg.axes, data)
-    pdg.axes.set_title( sir_title(*data[-1,:]) )
+    _timeSeriesLines(pdg.axes, data)
+    pdg.axes.set_title( _sirTitle(*data[-1,:]) )
     pdg.axes.legend()
     pdg.fig.tight_layout()
     pdg.canvas.draw()
@@ -70,8 +70,8 @@ class Population_visual:
         self.axes.append( self.fig.add_subplot(121) )
         self.axes.append( self.fig.add_subplot(222) )
         self.axes.append( self.fig.add_subplot(224) )
-        self.im = pop_image(self.axes[0], pop, Ti, Tr)
-        self.ln = timeSeriesLines(self.axes[1], np.zeros(shape=(0,6)))
+        self.im = _pop_image(self.axes[0], pop, Ti, Tr)
+        self.ln = _timeSeriesLines(self.axes[1], np.zeros(shape=(0,6)))
         self.ln.append( *self.axes[2].plot([],[],lw=2) )
         self.axes[1].set_ylim(0.0, 1.0)
         self.axes[1].legend(loc='upper right')
@@ -95,7 +95,7 @@ class Population_visual:
         self.ln[2].set_data(data[:,0], data[:,3])
         self.ln[3].set_data(data[:,0], data[:,4])
         t0, (t, fs, fi, fr, _) = data[0,0], data[-1]
-        self.axes[0].set_title( sir_title(t, fs, fi, fr) )
+        self.axes[0].set_title( _sirTitle(t, fs, fi, fr) )
         self.axes[1].set_xlim(t0, t+1)
         self.axes[2].set_xlim(t0, t+1)
 
