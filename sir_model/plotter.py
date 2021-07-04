@@ -65,7 +65,7 @@ class Population_visual:
     def __init__(self, nbrs, pop, Ti, Tr):
         self.fig = Figure(figsize=[12, 6])
         self.canvas = FigureCanvasQTAgg(self.fig)
-        self.canvas.setWindowTitle('Time evolution')
+        self.canvas.setWindowTitle('Time evolution animation')
         self.axes = list()
         self.axes.append( self.fig.add_subplot(121) )
         self.axes.append( self.fig.add_subplot(222) )
@@ -76,8 +76,10 @@ class Population_visual:
         self.axes[1].set_ylim(0.0, 1.0)
         self.axes[1].legend(loc='upper right')
         self.axes[2].set_ylim(-1, 3)
-        self.canvas.show()
         self.title(Ti,Tr,nbrs)
+        self.fig.tight_layout()
+        self.canvas.closeEvent = self.on_close
+        self.canvas.show()
 
     def title(self, Ti, Tr, nbrs):
         tau_i = r'$\tau_{i}$=%i'%Ti
@@ -101,9 +103,11 @@ class Population_visual:
 
     def animate(self, ti, tf, delay, animation_data):
         from matplotlib.animation import FuncAnimation
-        self.fig.tight_layout()
         self.updates_data = animation_data
-        line_ani = FuncAnimation(self.fig, self.update, (tf-ti-1),
-                                 interval=delay*1000, repeat=False)
+        self.line_ani = FuncAnimation(self.fig, self.update, (tf-ti-1),
+                                      interval=delay*1000, repeat=False)
         self.canvas.draw()
         self.canvas.show()
+
+    def on_close(self, *args):
+        self.line_ani.pause()

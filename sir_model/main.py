@@ -41,8 +41,8 @@ class Application:
         ti, tf, dt = self.ui.anim.get_values()
         self.model.set_popRange(p)
         nbrs, pop, Ti, Tr, updater = self.model.get_anim_updater(ti)
-        anim = plt.Population_visual(nbrs, pop, Ti, Tr)
-        anim.animate(ti, tf, dt, updater)
+        self.anim = plt.Population_visual(nbrs, pop, Ti, Tr)
+        self.anim.animate(ti, tf, dt, updater)
         self.ui.status('Ready')
 
 def main():
