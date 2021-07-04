@@ -5,13 +5,12 @@ from sir_model.model import Model
 
 class Application:
     def __init__(self):
-        super().__init__()
         self.model = Model()
         self.ui = Controls()
         self.ui.initpop.generatebutton.clicked.connect(self.generatepop)
         self.ui.initpop.plot_but.clicked.connect(self.plt_initpop)
-        self.ui.anim.pltSr_but.clicked.connect(self.pltSr_butfunc)
-        self.ui.anim.animate_but.clicked.connect(self.animate_butfunc)
+        self.ui.anim.pltSr_but.clicked.connect(self.plt_series)
+        self.ui.anim.animate_but.clicked.connect(self.plt_animation)
 
     def generatepop(self, _):
         self.ui.status('Working...')
@@ -26,7 +25,7 @@ class Application:
         self.pdip = plt.plotinitialpop(pop, census, Ti, Tr)
         self.ui.status('Ready')
 
-    def pltSr_butfunc(self, _):
+    def plt_series(self, _):
         self.ui.status('Working...')
         p = self.ui.nbrhd.get_values()
         ti, tf, _ = self.ui.anim.get_values()
@@ -35,7 +34,7 @@ class Application:
         self.pdts = plt.plot_time_series(data)
         self.ui.status('Ready')
 
-    def animate_butfunc(self, _):
+    def plt_animation(self, _):
         self.ui.status('Working...')
         p = self.ui.nbrhd.get_values()
         ti, tf, dt = self.ui.anim.get_values()
