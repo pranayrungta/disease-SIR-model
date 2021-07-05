@@ -78,12 +78,7 @@ class AnimDialog(qt.QDialog):
         self.im = _pop_image(self.axes[0], pop, Ti, Tr)
         self.ln = _timeSeriesLines(self.axes[1], np.zeros(shape=(0,6)))
         self.ln.append( *self.axes[2].plot([],[],lw=2) )
-        self.axes[1].set_ylim(0.0, 1.0)
-        self.axes[1].legend(loc='upper right')
-        self.axes[2].set_ylim(-1, 3)
         self.title(Ti,Tr,nbrs)
-        self.fig.tight_layout()
-        # self.canvas.closeEvent = self.on_close
 
         self.set_all_layouts()
 
@@ -141,4 +136,8 @@ class AnimDialog(qt.QDialog):
         self.setLayout(layout)
         self.setWindowTitle('Time evolution animation')
         self.resize(1200, 650)
+        self.axes[1].set_ylim(0.0, 1.0)
+        self.axes[1].legend(loc='upper right')
+        self.axes[2].set_ylim(-1, 3)
+        self.fig.tight_layout()
         self.show()
