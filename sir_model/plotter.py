@@ -1,17 +1,17 @@
 from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg,
                                                 NavigationToolbar2QT)
 from matplotlib.figure import Figure
-from PyQt5.QtWidgets import QDialog,  QVBoxLayout
+import PyQt5.QtWidgets as qt
 import numpy as np
 
-class PlotDialog(QDialog):
+class PlotDialog(qt.QDialog):
     def __init__(self, width=5, height=4, title='Plot'):
         super().__init__()
         self.fig = Figure(figsize=(width, height))
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
         self.axes = self.fig.add_subplot(111)
-        layout = QVBoxLayout()
+        layout = qt.QVBoxLayout()
         layout.addWidget(self.canvas)
         layout.addWidget(self.toolbar)
         self.setLayout(layout)
@@ -61,11 +61,16 @@ def plot_time_series(data):
     pdg.show()
     return pdg
 
-class Population_visual:
+
+class AnimDialog(qt.QDialog):
     def __init__(self, nbrs, pop, Ti, Tr):
-        self.fig = Figure(figsize=[12, 6])
+        super().__init__()
+        self.fig = Figure()
         self.canvas = FigureCanvasQTAgg(self.fig)
-        self.canvas.setWindowTitle('Time evolution animation')
+        self.toolbar = NavigationToolbar2QT(self.canvas, self)
+        self.playPause = qt.QPushButton("Pause")
+        self.playPause.clicked.connect(self.onClick)
+
         self.axes = list()
         self.axes.append( self.fig.add_subplot(121) )
         self.axes.append( self.fig.add_subplot(222) )
@@ -78,8 +83,9 @@ class Population_visual:
         self.axes[2].set_ylim(-1, 3)
         self.title(Ti,Tr,nbrs)
         self.fig.tight_layout()
-        self.canvas.closeEvent = self.on_close
-        self.canvas.show()
+        # self.canvas.closeEvent = self.on_close
+
+        self.set_all_layouts()
 
     def title(self, Ti, Tr, nbrs):
         tau_i = r'$\tau_{i}$=%i'%Ti
@@ -109,5 +115,30 @@ class Population_visual:
         self.canvas.draw()
         self.canvas.show()
 
-    def on_close(self, *args):
+    def closeEvent(self, *args):
         self.line_ani.pause()
+
+    def reject(self, *args):
+        self.close()
+        self.line_ani.pause()
+
+    def onClick(self):
+        if self.playPause.text()=='Play':
+            self.playPause.setText('Pause')
+            self.line_ani.resume()
+        else:
+            self.playPause.setText('Play')
+            self.line_ani.pause()
+
+    def set_all_layouts(self, width=5, height=4):
+        hl = qt.QHBoxLayout()
+        hl.addStretch()
+        hl.addWidget(self.playPause)
+        hl.addWidget(self.toolbar)
+        layout = qt.QVBoxLayout()
+        layout.addWidget(self.canvas)
+        layout.addLayout(hl)
+        self.setLayout(layout)
+        self.setWindowTitle('Time evolution animation')
+        self.resize(1200, 650)
+        self.show()
