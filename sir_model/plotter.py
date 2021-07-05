@@ -108,7 +108,6 @@ class AnimDialog(qt.QDialog):
         self.line_ani = FuncAnimation(self.fig, self.update, (tf-ti-1),
                                       interval=delay*1000, repeat=False)
         self.canvas.draw()
-        self.canvas.show()
 
     def closeEvent(self, *args):
         self.line_ani.pause()
@@ -141,3 +140,4 @@ class AnimDialog(qt.QDialog):
         self.axes[2].set_ylim(-1, 3)
         self.fig.tight_layout()
         self.show()
+
