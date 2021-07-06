@@ -22,7 +22,7 @@ class Application:
     def plt_initpop(self, _):
         self.ui.status('Working...')
         pop, census, Ti, Tr = self.model.init_pop()
-        self.pdip = plt.plotinitialpop(pop, census, Ti, Tr)
+        self.ip_dialog = plt.plotinitialpop(pop, census, Ti, Tr)
         self.ui.status('Ready')
 
     def plt_series(self, _):
@@ -31,7 +31,7 @@ class Application:
         ti, tf, _ = self.ui.anim.get_values()
         self.model.set_popRange(p)
         data = self.model.time_series_data(ti,tf)
-        self.pdts = plt.plot_time_series(data)
+        self.ts_dialog = plt.plot_time_series(data)
         self.ui.status('Ready')
 
     def plt_animation(self, _):
@@ -40,8 +40,8 @@ class Application:
         ti, tf, dt = self.ui.anim.get_values()
         self.model.set_popRange(p)
         nbrs, pop, Ti, Tr, updater = self.model.get_anim_updater(ti)
-        self.anim = plt.AnimDialog(nbrs, pop, Ti, Tr)
-        self.anim.animate(ti, tf, dt, updater)
+        self.anim_dialog = plt.AnimDialog(nbrs, pop, Ti, Tr)
+        self.anim_dialog.animate(ti, tf, dt, updater)
         self.ui.status('Ready')
 
 def main():

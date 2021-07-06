@@ -134,7 +134,7 @@ class AnimDialog(qt.QDialog):
         layout.addLayout(hl)
         self.setLayout(layout)
         self.setWindowTitle('Time evolution animation')
-        self.resize(1200, 650)
+        self.showMaximized() # self.resize(1200, 650)
         self.axes[1].set_ylim(0.0, 1.0)
         self.axes[1].legend(loc='upper right')
         self.axes[2].set_ylim(-1, 3)
