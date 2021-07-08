@@ -29,7 +29,7 @@ def _pop_image(axes, pop, Ti, Tr):
     axes.set_xlim(0,cols-1); axes.set_ylim(0,rows-1)
     return im
 
-def plotinitialpop(population, census, Ti, Tr):
+def plotInitialPop(population, census, Ti, Tr):
     pdg = PlotDialog(6.5,6.5,'Initial Population')
     tau_i = r'$\tau_{i}$=%i'%Ti
     tau_r = r'$\tau_{r}$=%i'%Tr
@@ -51,7 +51,7 @@ def _timeSeriesLines(axes, data):
 def _sirTitle(t,s,i,r):
     return f'Time={t}      S={s:.2f}   I={i:.2f}   R={r:.2f}'
 
-def plot_time_series(data):
+def plotTimeSeries(data):
     pdg = PlotDialog(6.5, 5, 'Time series')
     _timeSeriesLines(pdg.axes, data)
     pdg.axes.set_title( _sirTitle(*data[-1,:]) )
@@ -78,11 +78,11 @@ class AnimDialog(qt.QDialog):
         self.im = _pop_image(self.axes[0], pop, Ti, Tr)
         self.ln = _timeSeriesLines(self.axes[1], np.zeros(shape=(0,6)))
         self.ln.append( *self.axes[2].plot([],[],lw=2) )
-        self.title(Ti,Tr,nbrs)
+        self._title(Ti,Tr,nbrs)
 
-        self.set_all_layouts()
+        self._set_all_layouts()
 
-    def title(self, Ti, Tr, nbrs):
+    def _title(self, Ti, Tr, nbrs):
         tau_i = r'$\tau_{i}$=%i'%Ti
         tau_r = r'$\tau_{r}$=%i'%Tr
         nbrs = f'nbrs={nbrs}'
@@ -90,7 +90,7 @@ class AnimDialog(qt.QDialog):
         ham_dist_phase = r'|$\frac{1}{N}\Sigma e^{i\phi}$|'
         self.axes[2].set_title(f'Order Parameter = {ham_dist_phase}')
 
-    def update(self, i):
+    def _update(self, i):
         pop, data = self.updates_data()
         self.im.set_data(pop)
         self.ln[0].set_data(data[:,0], data[:,1])
@@ -105,7 +105,7 @@ class AnimDialog(qt.QDialog):
     def animate(self, ti, tf, delay, updates_data):
         from matplotlib.animation import FuncAnimation
         self.updates_data = updates_data
-        self.line_ani = FuncAnimation(self.fig, self.update, (tf-ti-1),
+        self.line_ani = FuncAnimation(self.fig, self._update, (tf-ti-1),
                                       interval=delay*1000, repeat=False)
         self.canvas.draw()
 
@@ -124,7 +124,7 @@ class AnimDialog(qt.QDialog):
             self.playPause.setText('Play')
             self.line_ani.pause()
 
-    def set_all_layouts(self, width=5, height=4):
+    def _set_all_layouts(self, width=5, height=4):
         hl = qt.QHBoxLayout()
         hl.addStretch()
         hl.addWidget(self.playPause)

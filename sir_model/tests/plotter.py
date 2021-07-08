@@ -24,6 +24,8 @@ def time_series():
     fig.tight_layout()
 
 
+
+
 def updates_data():
     pop = np.random.randint(0,10,(8,8))
     t = np.arange(20)[...,None]
@@ -37,6 +39,6 @@ def anim():
     nbrs, Ti, Tr = 8, 4, 10
 
     dialog = AnimDialog(nbrs, pop, Ti, Tr)
-    # from unittest.mock import Mock
-    # dialog.line_ani = Mock()
-    dialog.animate(1, 20, 0.25, updates_data)
+    from unittest.mock import Mock
+    dialog.line_ani = Mock()
+    # dialog.animate(1, 20, 0.25, updates_data)

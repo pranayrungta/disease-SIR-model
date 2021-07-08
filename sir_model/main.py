@@ -7,22 +7,22 @@ class Application:
     def __init__(self):
         self.model = Model()
         self.ui = Controls()
-        self.ui.initpop.generatebutton.clicked.connect(self.generatepop)
+        self.ui.initpop.generatebutton.clicked.connect(self.generate_pop)
         self.ui.initpop.plot_but.clicked.connect(self.plt_initpop)
         self.ui.anim.pltSr_but.clicked.connect(self.plt_series)
         self.ui.anim.animate_but.clicked.connect(self.plt_animation)
 
-    def generatepop(self, _):
+    def generate_pop(self, _):
         self.ui.status('Working...')
         p = self.ui.initpop.get_values()
-        self.model.set_pop(p['singleInfected'], p['popsize'], p['s0'])
+        self.model.set_pop(p)
         self.ui.disable_plot_buttons(False)
         self.ui.status('Ready')
 
     def plt_initpop(self, _):
         self.ui.status('Working...')
         pop, census, Ti, Tr = self.model.init_pop()
-        self.ip_dialog = plt.plotinitialpop(pop, census, Ti, Tr)
+        self.ip_dialog = plt.plotInitialPop(pop, census, Ti, Tr)
         self.ui.status('Ready')
 
     def plt_series(self, _):
@@ -31,7 +31,7 @@ class Application:
         ti, tf, _ = self.ui.anim.get_values()
         self.model.set_popRange(p)
         data = self.model.time_series_data(ti,tf)
-        self.ts_dialog = plt.plot_time_series(data)
+        self.ts_dialog = plt.plotTimeSeries(data)
         self.ui.status('Ready')
 
     def plt_animation(self, _):

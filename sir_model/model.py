@@ -9,10 +9,10 @@ class Model:
         self.popRange = ShortRangePop(self.population, True)
         self.data = np.zeros(shape=(0,5))
 
-    def set_pop(self, singleInfected, size, fs):
-        if singleInfected:
-            self.population = singleinfectedpop(size, fs)
-        else: self.population = fracinfectedpop(size, fs)
+    def set_pop(self, p):
+        if p['singleInfected']:
+            self.population = singleinfectedpop(p['popsize'], p['s0'])
+        else: self.population = fracinfectedpop(p['popsize'], p['s0'])
 
     def set_popRange(self, p):
         if p['longRange']:
