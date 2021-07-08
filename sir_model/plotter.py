@@ -102,9 +102,9 @@ class AnimDialog(qt.QDialog):
         self.axes[1].set_xlim(t0, t+1)
         self.axes[2].set_xlim(t0, t+1)
 
-    def animate(self, ti, tf, delay, animation_data):
+    def animate(self, ti, tf, delay, updates_data):
         from matplotlib.animation import FuncAnimation
-        self.updates_data = animation_data
+        self.updates_data = updates_data
         self.line_ani = FuncAnimation(self.fig, self.update, (tf-ti-1),
                                       interval=delay*1000, repeat=False)
         self.canvas.draw()
