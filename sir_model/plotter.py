@@ -64,13 +64,12 @@ def plotTimeSeries(data):
 
 class PlayPause(qt.QWidget):
     def __init__(self):
-        from unittest.mock import Mock
         super().__init__()
         self.playText = '\u25B6'
         self.pauseText = '\u23f8'
         self.button = qt.QPushButton(self.pauseText)
         self.button.clicked.connect(self.onClick)
-        self.animControl = Mock()
+        self.animControl = None
         self.button.setStyleSheet('''
             font-size : 25px;   border     : none;
             max-width : 30px;   max-height : 30px;
@@ -79,16 +78,18 @@ class PlayPause(qt.QWidget):
         layout.addWidget(self.button)
         self.setLayout(layout)
 
-    def set_animControler(self, animControler):
+    def setAnimControler(self, animControler):
         self.animControl = animControler
 
     def onClick(self):
         if self.button.text()==self.playText:
             self.button.setText(self.pauseText)
-            self.animControl.resume()
+            if self.animControl:
+                self.animControl.resume()
         elif self.button.text()==self.pauseText:
             self.button.setText(self.playText)
-            self.animControl.pause()
+            if self.animControl:
+                self.animControl.pause()
 
 class AnimDialog(qt.QDialog):
     def __init__(self, nbrs, pop, Ti, Tr):
@@ -131,7 +132,7 @@ class AnimDialog(qt.QDialog):
         self.updates_data = updates_data
         self.line_ani = FuncAnimation(self.fig, self._update, (tf-ti-1),
                                       interval=delay*1000, repeat=False)
-        self.playPause.set_animControler(self.line_ani)
+        self.playPause.setAnimControler(self.line_ani)
         self.canvas.draw()
 
     def closeEvent(self, *args):

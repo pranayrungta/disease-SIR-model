@@ -39,6 +39,4 @@ def anim():
     nbrs, Ti, Tr = 8, 4, 10
 
     dialog = AnimDialog(nbrs, pop, Ti, Tr)
-    # from unittest.mock import Mock
-    # dialog.line_ani = Mock()
     dialog.animate(1, 20, 0.25, updates_data)
