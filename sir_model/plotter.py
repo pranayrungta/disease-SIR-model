@@ -62,24 +62,48 @@ def plotTimeSeries(data):
     return pdg
 
 
+class PlayPause(qt.QWidget):
+    def __init__(self):
+        from unittest.mock import Mock
+        super().__init__()
+        self.playText = '\u25B6'
+        self.pauseText = '\u23f8'
+        self.button = qt.QPushButton(self.pauseText)
+        self.button.clicked.connect(self.onClick)
+        self.animControl = Mock()
+        self.button.setStyleSheet('''
+            font-size : 25px;   border     : none;
+            max-width : 30px;   max-height : 30px;
+            min-width : 30px;   min-height : 30px; ''')
+        layout = qt.QGridLayout()
+        layout.addWidget(self.button)
+        self.setLayout(layout)
+
+    def set_animControler(self, animControler):
+        self.animControl = animControler
+
+    def onClick(self):
+        if self.button.text()==self.playText:
+            self.button.setText(self.pauseText)
+            self.animControl.resume()
+        elif self.button.text()==self.pauseText:
+            self.button.setText(self.playText)
+            self.animControl.pause()
+
 class AnimDialog(qt.QDialog):
     def __init__(self, nbrs, pop, Ti, Tr):
         super().__init__()
         self.fig = Figure()
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
-        self.playPause = qt.QPushButton("||")
-        self.playPause.clicked.connect(self.onClick)
-
-        self.axes = list()
-        self.axes.append( self.fig.add_subplot(121) )
-        self.axes.append( self.fig.add_subplot(222) )
-        self.axes.append( self.fig.add_subplot(224) )
+        self.playPause = PlayPause()
+        self.axes = [ self.fig.add_subplot(121),
+                      self.fig.add_subplot(222),
+                      self.fig.add_subplot(224)   ]
         self.im = _pop_image(self.axes[0], pop, Ti, Tr)
         self.ln = _timeSeriesLines(self.axes[1], np.zeros(shape=(0,6)))
         self.ln.append( *self.axes[2].plot([],[],lw=2) )
         self._title(Ti,Tr,nbrs)
-
         self._set_all_layouts()
 
     def _title(self, Ti, Tr, nbrs):
@@ -107,6 +131,7 @@ class AnimDialog(qt.QDialog):
         self.updates_data = updates_data
         self.line_ani = FuncAnimation(self.fig, self._update, (tf-ti-1),
                                       interval=delay*1000, repeat=False)
+        self.playPause.set_animControler(self.line_ani)
         self.canvas.draw()
 
     def closeEvent(self, *args):
@@ -116,26 +141,7 @@ class AnimDialog(qt.QDialog):
         self.close()
         self.line_ani.pause()
 
-    def onClick(self):
-        if self.playPause.text()=='\u25ba':
-            self.playPause.setText('||')
-            self.line_ani.resume()
-        else:
-            self.playPause.setText('\u25ba')
-            self.line_ani.pause()
-
     def _set_all_layouts(self, width=5, height=4):
-        self.playPause.setStyleSheet('''
-             font-size: 17px;
-             background-color: white;
-             border-style  : solid;
-             border-width  : 2px;
-             border-radius : 17px;
-             border-color  : blue;
-             max-width  : 30px;
-             max-height : 30px;
-             min-width  : 30px;
-             min-height : 30px; ''')
         hl = qt.QHBoxLayout()
         hl.addStretch()
         hl.addWidget(self.playPause)
@@ -151,3 +157,8 @@ class AnimDialog(qt.QDialog):
         self.axes[2].set_ylim(-1, 3)
         self.fig.tight_layout()
         self.show()
+
+if __name__=='__main__':
+    # b = PlayPause()
+    # b.show()
+    pass
