@@ -63,13 +63,17 @@ def plotTimeSeries(data):
 
 
 class PlayPause(qt.QWidget):
+    class MockAnim:
+        def resume(self):pass
+        def pause(self):pass
+
     def __init__(self):
         super().__init__()
         self.playText = '\u25B6'
         self.pauseText = '\u23f8'
         self.button = qt.QPushButton(self.pauseText)
         self.button.clicked.connect(self.onClick)
-        self.animControl = None
+        self.animControl = self.MockAnim()
         self.button.setStyleSheet('''
             font-size : 25px;   border     : none;
             max-width : 30px;   max-height : 30px;
@@ -84,12 +88,10 @@ class PlayPause(qt.QWidget):
     def onClick(self):
         if self.button.text()==self.playText:
             self.button.setText(self.pauseText)
-            if self.animControl:
-                self.animControl.resume()
+            self.animControl.resume()
         elif self.button.text()==self.pauseText:
             self.button.setText(self.playText)
-            if self.animControl:
-                self.animControl.pause()
+            self.animControl.pause()
 
 class AnimDialog(qt.QDialog):
     def __init__(self, nbrs, pop, Ti, Tr):
