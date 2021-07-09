@@ -68,7 +68,7 @@ class AnimDialog(qt.QDialog):
         self.fig = Figure()
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
-        self.playPause = qt.QPushButton("Pause")
+        self.playPause = qt.QPushButton("||")
         self.playPause.clicked.connect(self.onClick)
 
         self.axes = list()
@@ -117,11 +117,11 @@ class AnimDialog(qt.QDialog):
         self.line_ani.pause()
 
     def onClick(self):
-        if self.playPause.text()=='Play':
-            self.playPause.setText('Pause')
+        if self.playPause.text()=='\u25ba':
+            self.playPause.setText('||')
             self.line_ani.resume()
         else:
-            self.playPause.setText('Play')
+            self.playPause.setText('\u25ba')
             self.line_ani.pause()
 
     def _set_all_layouts(self, width=5, height=4):
