@@ -125,6 +125,17 @@ class AnimDialog(qt.QDialog):
             self.line_ani.pause()
 
     def _set_all_layouts(self, width=5, height=4):
+        self.playPause.setStyleSheet('''
+             font-size: 17px;
+             background-color: white;
+             border-style  : solid;
+             border-width  : 2px;
+             border-radius : 17px;
+             border-color  : blue;
+             max-width  : 30px;
+             max-height : 30px;
+             min-width  : 30px;
+             min-height : 30px; ''')
         hl = qt.QHBoxLayout()
         hl.addStretch()
         hl.addWidget(self.playPause)
@@ -140,4 +151,3 @@ class AnimDialog(qt.QDialog):
         self.axes[2].set_ylim(-1, 3)
         self.fig.tight_layout()
         self.show()
-
