@@ -63,17 +63,13 @@ def plotTimeSeries(data):
 
 
 class PlayPause(qt.QWidget):
-    class MockAnim:
-        def resume(self):pass
-        def pause(self):pass
-
-    def __init__(self):
+    def __init__(self, animControler):
         super().__init__()
         self.playText = '\u25B6'
         self.pauseText = '\u23f8'
         self.button = qt.QPushButton(self.pauseText)
         self.button.clicked.connect(self.onClick)
-        self.animControl = self.MockAnim()
+        self.animControler = animControler
         self.button.setStyleSheet('''
             font-size : 25px;   border     : none;
             max-width : 30px;   max-height : 30px;
@@ -82,24 +78,26 @@ class PlayPause(qt.QWidget):
         layout.addWidget(self.button)
         self.setLayout(layout)
 
-    def setAnimControler(self, animControler):
-        self.animControl = animControler
-
     def onClick(self):
         if self.button.text()==self.playText:
             self.button.setText(self.pauseText)
-            self.animControl.resume()
+            self.animControler.resume()
         elif self.button.text()==self.pauseText:
             self.button.setText(self.playText)
-            self.animControl.pause()
+            self.animControler.pause()
 
 class AnimDialog(qt.QDialog):
+    class MockAnim:
+        def resume(self): pass
+        def pause(self): pass
+
     def __init__(self, nbrs, pop, Ti, Tr):
         super().__init__()
         self.fig = Figure()
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
-        self.playPause = PlayPause()
+        self.anim_obj = self.MockAnim()
+        self.playPause = PlayPause(self.anim_obj)
         self.axes = [ self.fig.add_subplot(121),
                       self.fig.add_subplot(222),
                       self.fig.add_subplot(224)   ]
@@ -118,7 +116,7 @@ class AnimDialog(qt.QDialog):
         self.axes[2].set_title(f'Order Parameter = {ham_dist_phase}')
 
     def _update(self, i):
-        pop, data = self.updates_data()
+        pop, data = self.dataUpdates()
         self.im.set_data(pop)
         self.ln[0].set_data(data[:,0], data[:,1])
         self.ln[1].set_data(data[:,0], data[:,2])
@@ -129,20 +127,20 @@ class AnimDialog(qt.QDialog):
         self.axes[1].set_xlim(t0, t+1)
         self.axes[2].set_xlim(t0, t+1)
 
-    def animate(self, ti, tf, delay, updates_data):
+    def animate(self, ti, tf, delay, dataUpdates):
         from matplotlib.animation import FuncAnimation
-        self.updates_data = updates_data
-        self.line_ani = FuncAnimation(self.fig, self._update, (tf-ti-1),
+        self.dataUpdates = dataUpdates
+        self.anim_obj = FuncAnimation(self.fig, self._update, (tf-ti-1),
                                       interval=delay*1000, repeat=False)
-        self.playPause.setAnimControler(self.line_ani)
+        self.playPause.animControler = self.anim_obj
         self.canvas.draw()
 
     def closeEvent(self, *args):
-        self.line_ani.pause()
+        self.anim_obj.pause()
+        print('closed')
 
     def reject(self, *args):
         self.close()
-        self.line_ani.pause()
 
     def _set_all_layouts(self, width=5, height=4):
         hl = qt.QHBoxLayout()
@@ -162,6 +160,6 @@ class AnimDialog(qt.QDialog):
         self.show()
 
 if __name__=='__main__':
-    # b = PlayPause()
+    # b = PlayPause(AnimDialog.MockAnim())
     # b.show()
     pass
