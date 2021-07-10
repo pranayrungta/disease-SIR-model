@@ -115,8 +115,8 @@ class AnimDialog(qt.QDialog):
         ham_dist_phase = r'|$\frac{1}{N}\Sigma e^{i\phi}$|'
         self.axes[2].set_title(f'Order Parameter = {ham_dist_phase}')
 
-    def _update(self, i):
-        pop, data = self.dataUpdates()
+    def _update(self, i, dataUpdates):
+        pop, data = dataUpdates()
         self.im.set_data(pop)
         self.ln[0].set_data(data[:,0], data[:,1])
         self.ln[1].set_data(data[:,0], data[:,2])
@@ -129,15 +129,13 @@ class AnimDialog(qt.QDialog):
 
     def animate(self, ti, tf, delay, dataUpdates):
         from matplotlib.animation import FuncAnimation
-        self.dataUpdates = dataUpdates
         self.anim_obj = FuncAnimation(self.fig, self._update, (tf-ti-1),
-                                      interval=delay*1000, repeat=False)
+                 fargs=(dataUpdates,), interval=delay*1000, repeat=False)
         self.playPause.animControler = self.anim_obj
         self.canvas.draw()
 
     def closeEvent(self, *args):
         self.anim_obj.pause()
-        print('closed')
 
     def reject(self, *args):
         self.close()
