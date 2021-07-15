@@ -40,3 +40,13 @@ def anim():
 
     dialog = AnimDialog(nbrs, pop, Ti, Tr)
     dialog.animate(1, 20, 0.25, updates_data)
+
+def playPauseButton():
+    from sir_model.plotter import PlayPause
+
+    class MockAnimObj:
+        def resume(self): print('resumed')
+        def pause(self): print('paused')
+
+    but = PlayPause(MockAnimObj())
+    but.show()

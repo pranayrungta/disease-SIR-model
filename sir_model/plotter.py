@@ -156,8 +156,3 @@ class AnimDialog(qt.QDialog):
         self.axes[2].set_ylim(-1, 3)
         self.fig.tight_layout()
         self.show()
-
-if __name__=='__main__':
-    # b = PlayPause(AnimDialog.MockAnim())
-    # b.show()
-    pass
