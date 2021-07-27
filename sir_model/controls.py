@@ -149,7 +149,7 @@ class Neighbourhood(qt.QWidget):
         vLayout.addWidget(self.longrange)
         vLayout.addStretch()
         vLayout.addLayout(FormLay([[self.prob_label,self.probrewire],
-                                         [self.freq_label,self.freqrewire]]))
+                                   [self.freq_label,self.freqrewire]]))
         grpBox = qt.QGroupBox("Neighbourhood  ")
         grpBox.setLayout(vLayout)
         layout = qt.QGridLayout()

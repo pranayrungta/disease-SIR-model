@@ -2,11 +2,13 @@ from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg,
                                                 NavigationToolbar2QT)
 from matplotlib.figure import Figure
 import PyQt5.QtWidgets as qt
+from  PyQt5 import QtCore
 import numpy as np
 
 class PlotDialog(qt.QDialog):
     def __init__(self, width=5, height=4, title='Plot'):
         super().__init__()
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.fig = Figure(figsize=(width, height))
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
@@ -93,6 +95,7 @@ class AnimDialog(qt.QDialog):
 
     def __init__(self, nbrs, pop, Ti, Tr):
         super().__init__()
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.fig = Figure()
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
