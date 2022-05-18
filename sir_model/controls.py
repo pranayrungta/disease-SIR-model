@@ -23,10 +23,8 @@ def SpinBox(maximum, singleStep, init_value=0):
 
 def FormLay(label_Field_list:dict):
     formLayout = qt.QFormLayout()
-    for i,(label,field) in enumerate(label_Field_list.items()):
-        label = qt.QLabel(label)
-        formLayout.setWidget(i, qt.QFormLayout.LabelRole, label)
-        formLayout.setWidget(i, qt.QFormLayout.FieldRole, field)
+    for label,field in label_Field_list.items():
+        formLayout.addRow(qt.QLabel(label), field)
     return formLayout
 
 
@@ -133,18 +131,18 @@ class Neighbourhood(qt.QWidget):
         vLayout.addWidget(self.nbr8)
         vLayout.addWidget(self.longrange)
         vLayout.addStretch()
-        self.frame = qt.QFrame()
-        self.frame.setLayout(FormLay({
+        frame = qt.QFrame()
+        frame.setLayout(FormLay({
             "Probability:" : self.probrewire,
             "Frequency:" : self.freqrewire}) )
-        self.frame.setVisible(False)
-        vLayout.addWidget(self.frame)
+        frame.setVisible(False)
+        vLayout.addWidget(frame)
         grpBox = qt.QGroupBox("Neighbourhood  ")
         grpBox.setLayout(vLayout)
         layout = qt.QGridLayout()
         layout.addWidget(grpBox)
         self.setLayout(layout)
-        self.longrange.toggled.connect(self.frame.setVisible)
+        self.longrange.toggled.connect(frame.setVisible)
 
 
 class Animate(qt.QWidget):
