@@ -96,7 +96,7 @@ class Initpop(qt.QGroupBox):
 
 class Neighbourhood(qt.QGroupBox):
     def __init__(self):
-        super().__init__("Neighbourhood  ")
+        super().__init__("Neighbourhood")
         self.nbr4 = qt.QRadioButton("von Neumann(4)")
         self.nbr4.setChecked(True)
         self.nbr8 = qt.QRadioButton("Moore(8)")
@@ -188,7 +188,9 @@ class Controls(qt.QMainWindow):
         self.setCentralWidget(centralwidget)
         horizontalLayout = qt.QHBoxLayout(centralwidget)
         horizontalLayout.addWidget(self.initpop)
+        horizontalLayout.addStretch()
         horizontalLayout.addWidget(self.nbrhd)
+        horizontalLayout.addStretch()
         horizontalLayout.addWidget(self.anim)
         self.statusbar = qt.QStatusBar(self)
         self.setStatusBar(self.statusbar)
