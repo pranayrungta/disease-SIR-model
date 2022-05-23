@@ -28,10 +28,10 @@ def FormLay(label_Field_list:dict):
     return formLayout
 
 
-class Initpop(qt.QWidget):
+class Initpop(qt.QGroupBox):
     newValueSelected = pyqtSignal()
     def __init__(self):
-        super().__init__()
+        super().__init__("Initial Population")
         self.singleinfected = qt.QCheckBox("Single Infected Individual")
         self.s0 = DoubleSpinBox()
         self.i0 = DoubleSpinBox()
@@ -91,16 +91,12 @@ class Initpop(qt.QWidget):
         vLayout.addStretch()
         vLayout.addWidget(self.generatebutton)
         vLayout.addWidget(self.plot_but)
-        grpBox = qt.QGroupBox("Initial Population")
-        grpBox.setLayout(vLayout)
-        layout = qt.QGridLayout()
-        layout.addWidget(grpBox)
-        self.setLayout(layout)
+        self.setLayout(vLayout)
 
 
-class Neighbourhood(qt.QWidget):
+class Neighbourhood(qt.QGroupBox):
     def __init__(self):
-        super().__init__()
+        super().__init__("Neighbourhood  ")
         self.nbr4 = qt.QRadioButton("von Neumann(4)")
         self.nbr4.setChecked(True)
         self.nbr8 = qt.QRadioButton("Moore(8)")
@@ -136,18 +132,14 @@ class Neighbourhood(qt.QWidget):
             "Probability:" : self.probrewire,
             "Frequency:" : self.freqrewire}) )
         frame.setVisible(False)
-        vLayout.addWidget(frame)
-        grpBox = qt.QGroupBox("Neighbourhood  ")
-        grpBox.setLayout(vLayout)
-        layout = qt.QGridLayout()
-        layout.addWidget(grpBox)
-        self.setLayout(layout)
         self.longrange.toggled.connect(frame.setVisible)
+        vLayout.addWidget(frame)
+        self.setLayout(vLayout)
 
 
-class Animate(qt.QWidget):
+class Animate(qt.QGroupBox):
     def __init__(self):
-        super().__init__()
+        super().__init__("Animate")
         self.tstart = SpinBox(10000,10)
         self.tend = SpinBox(100000,10)
         self.delay_spBox = DoubleSpinBox(0.05, 5.0, 0.5)
@@ -171,11 +163,7 @@ class Animate(qt.QWidget):
         vLayout.addStretch()
         vLayout.addWidget(self.animate_but)
         vLayout.addWidget(self.pltSr_but)
-        grpBox = qt.QGroupBox("Animate")
-        grpBox.setLayout(vLayout)
-        layout = qt.QGridLayout()
-        layout.addWidget(grpBox)
-        self.setLayout(layout)
+        self.setLayout(vLayout)
 
 
 class Controls(qt.QMainWindow):
