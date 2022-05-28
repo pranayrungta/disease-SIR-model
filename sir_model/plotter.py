@@ -64,34 +64,32 @@ def plotTimeSeries(data):
     return pdg
 
 
-class PlayPause(qt.QWidget):
-    def __init__(self, animControler):
-        super().__init__()
-        self.playText = '\u25B6'
-        self.pauseText = '\u23f8'
-        self.button = qt.QPushButton(self.pauseText)
-        self.button.clicked.connect(self.onClick)
-        self.animControler = animControler
-        self.button.setStyleSheet('''
-            font-size : 25px;   border     : none;
-            max-width : 30px;   max-height : 30px;
-            min-width : 30px;   min-height : 30px; ''')
-        layout = qt.QGridLayout()
-        layout.addWidget(self.button)
-        self.setLayout(layout)
-
-    def onClick(self):
-        if self.button.text()==self.playText:
-            self.button.setText(self.pauseText)
-            self.animControler.resume()
-        elif self.button.text()==self.pauseText:
-            self.button.setText(self.playText)
-            self.animControler.pause()
-
-class AnimDialog(qt.QDialog):
+class PlayPause(qt.QPushButton):
     class MockAnim:
         def resume(self): pass
         def pause(self): pass
+
+    playText = '\u25B6'
+    pauseText = '\u23f8'
+
+    def __init__(self):
+        super().__init__(self.pauseText)
+        self.clicked.connect(self.onClick)
+        self.animControler = self.MockAnim()
+        self.setStyleSheet('''
+            font-size : 25px;   border     : none;
+            max-width : 30px;   max-height : 30px;
+            min-width : 30px;   min-height : 30px; ''')
+
+    def onClick(self):
+        if self.text()==self.playText:
+            self.setText(self.pauseText)
+            self.animControler.resume()
+        elif self.text()==self.pauseText:
+            self.setText(self.playText)
+            self.animControler.pause()
+
+class AnimDialog(qt.QDialog):
 
     def __init__(self, nbrs, pop, Ti, Tr):
         super().__init__()
@@ -99,8 +97,8 @@ class AnimDialog(qt.QDialog):
         self.fig = Figure()
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
-        self.anim_obj = self.MockAnim()
-        self.playPause = PlayPause(self.anim_obj)
+        self.anim_obj = None
+        self.playPause = PlayPause()
         self.axes = [ self.fig.add_subplot(121),
                       self.fig.add_subplot(222),
                       self.fig.add_subplot(224)   ]
